@@ -1,0 +1,17 @@
+<div class="card-container">
+    <mat-card
+      *ngFor="let pick of pick$ | async"
+      (click)="selectPick(pick)"
+    >
+      <mat-card-header>
+        <mat-card-title>{{ pick.userID }}</mat-card-title>
+        <mat-card-subtitle>{{ pick.gameID }} type</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p>
+          {{ pick.teamID }}
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>

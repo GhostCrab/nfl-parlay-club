@@ -1,0 +1,3 @@
+$Env:NODE_TLS_REJECT_UNAUTHORIZED = 0
+$Env:HTTPS_PROXY = 'http://proxy.ext.ray.com:80'   
+$Env:HTTP_PROXY = 'http://proxy.ext.ray.com:80'  

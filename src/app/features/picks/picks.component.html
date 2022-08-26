@@ -1,0 +1,22 @@
+<div class="container">
+    <div class="content">
+      <div class="list">
+        <div class="list-header">
+          <h3>List of Picks</h3>
+          <button mat-raised-button color="primary" (click)="addPick()">
+            Add Pick
+          </button>
+        </div>
+        <app-list
+          [pick$]="allPicks$"
+          (pickEmitter)="selectPick($event)"
+        ></app-list>
+      </div>
+      <app-detail
+        [pick]="selectedPick"
+        *ngIf="selectedPick"
+        (deletePick)="deletePick()"
+        (updatePick)="updatePick()"
+      ></app-detail>
+    </div>
+  </div>

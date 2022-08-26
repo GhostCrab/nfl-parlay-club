@@ -1,0 +1,9 @@
+[ ] make listing of all teams and ids
+[ ] make listing of all games and ids
+[ ] make listing of all users
+[ ] show all picks by user
+[ ] show all games by week
+[ ] show scores of each user
+[ ] page to make picks
+[ ] update scores in real time
+[ ] login page

@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "nfl-parlay-club": {
+      "hosting": {
+        "nfl-parlay-club": [
+          "nfl-parlay-club"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "nfl-parlay-club"
+  }
+}
