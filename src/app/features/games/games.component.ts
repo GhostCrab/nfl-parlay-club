@@ -63,88 +63,45 @@ export class GamesComponent implements OnInit {
     // this.allGames$ = this.gamedb.getAll();
     // this.allGames$.subscribe(data => {console.log(data)})
 
-    const dbgames = await firstValueFrom(this.gamedb.getAll());
-    for (const dbgame of dbgames) {
-      this.gamedb.delete(dbgame.gameID);
-    }
+    this.gamedb.getAll().subscribe(data => console.log(data));
 
-    const apigames = await firstValueFrom(this.nfl.getGames(week));
+    // const dbgames = await firstValueFrom(this.gamedb.getAll());
+    
 
-    for (const apigame of apigames) {
-      // find game in dbgames
-      const dbgame = dbgames.find((dbgame) => {
-        return (
-          dbgame.home.teamID === apigame.home.teamID && dbgame.week === apigame.week
-        );
-      });
+    // const apigames = await firstValueFrom(this.nfl.getGames(week));
 
-      if (dbgame) {
-        dbgame.updateScoreAndDate(apigame);
-        console.log(
-          `Found and updated W${dbgame.week} ${dbgame.away.abbr} @ ${dbgame.home.abbr}`
-        );
-      } else {
-        console.log(
-          `Unable to find W${apigame.week} ${apigame.away.abbr} @ ${apigame.home.abbr} in db`
-        );
-        this.gamedb.addGame(apigame);
-        console.log(`Added new game:`);
-        console.log(apigame);
-      }
-    }
-    console.log('TERSTT');
-
-    // this.gamedb.getAll().subscribe((dbgames) => {
-    //   this.nfl.getGames(week).subscribe((nflgames) => {
-    //     console.log(dbgames);
-    //     console.log(nflgames);
-    //     for (const game of nflgames) {
-    //       // find game in dbgames
-    //       const dbgame = dbgames.find((dbgame) => {
-    //         return dbgame.home.teamID === game.home.teamID && dbgame.week === game.week;
-    //       });
-
-    //       if (dbgame) {
-    //         dbgame.updateScoreAndDate(game);
-    //         console.log(`Found and updated W${dbgame.week} ${dbgame.away.abbr} @ ${dbgame.home.abbr}`);
-    //       }
-    //       else {
-    //         console.log(`Unable to find W${game.week} ${game.away.abbr} @ ${game.home.abbr} in db`);
-    //         this.gamedb.addGame(game);
-    //         console.log(`Added new game:`);
-    //         console.log(game);
-    //       }
-    //     }
+    // for (const apigame of apigames) {
+    //   // find game in dbgames
+    //   const dbgame = dbgames.find((dbgame) => {
+    //     return (
+    //       dbgame.home.teamID === apigame.home.teamID && dbgame.week === apigame.week
+    //     );
     //   });
-    // });
 
-    // this.gamedb.fromTeamDate("FALCONS", 2).subscribe(data => {
-    //   console.log(data);
-    // });
+    //   if (dbgame) {
+    //     dbgame.updateScoreAndDate(apigame);
+    //     console.log(
+    //       `Found and updated W${dbgame.week} ${dbgame.away.abbr} @ ${dbgame.home.abbr}`
+    //     );
+    //   } else {
+    //     console.log(
+    //       `Unable to find W${apigame.week} ${apigame.away.abbr} @ ${apigame.home.abbr} in db`
+    //     );
+    //     this.gamedb.addGame(apigame);
+    //     console.log(`Added new game:`);
+    //     console.log(apigame);
+    //   }
+    // }
 
-    if (false) {
-      this.allGames$ = this.nfl.getData(`Week ${week}`).pipe(
-        map((data) => {
-          console.log(data);
-          const games: ParlayGame[] = [];
-          for (const result of data.results) {
-            const game = new ParlayGame(
-              result.team2Name,
-              result.team1Name,
-              result.date,
-              this.teamdb
-            );
-            this.gamedb.addGame(game);
-            game.updateFromAPI(result);
-            games.push(game);
-          }
-          return games;
-        })
-      );
+    // const newgames = await firstValueFrom(this.gamedb.getAll());
+    // console.log(newgames);
 
-      this.allGames$.subscribe((data) => {
-        console.log(data);
-      });
-    }
+
+
+
+    // console.log(dbgames);
+    // for (const dbgame of dbgames) {
+    //   this.gamedb.delete(dbgame.gameID);
+    // }
   }
 }
