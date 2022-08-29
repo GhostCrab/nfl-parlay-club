@@ -3,6 +3,7 @@ export interface IParlayTeam {
   name: string;
   city: string;
   abbr: string;
+  iconURL: string;
   active: boolean;
 
   isActive(): boolean;
@@ -15,6 +16,7 @@ export class ParlayTeam implements IParlayTeam {
   public name: string;
   public city: string;
   public abbr: string;
+  public iconURL: string;
   public active: boolean;
 
   constructor(
@@ -22,12 +24,14 @@ export class ParlayTeam implements IParlayTeam {
     city: string,
     name: string,
     abbr: string,
+    iconURL: string,
     active: boolean
   ) {
     this.teamID = teamID;
     this.name = name;
     this.city = city;
     this.abbr = abbr;
+    this.iconURL = iconURL;
     this.active = active;
   }
 

@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { NFLData } from '../features/nfl/interfaces/nfl.interface';
+import { NFLData } from './interfaces/nfl-api.interface';
 import { ParlayGame } from '../features/games/interfaces/parlay-game.interface';
 import { TeamDatabaseService } from './team-database.service';
 
@@ -41,7 +41,7 @@ export class NFLApiService {
     return this.http.get<NFLData>(url.href);
   }
 
-  getGames(week: number) {
+  getGames(week: number, includeOdds = false) {
     const url = new URL(this.apiUrl);
     for (const [key, value] of Object.entries(this.apiSearchParams)) {
       url.searchParams.set(key, value);
@@ -62,6 +62,7 @@ export class NFLApiService {
             this.teamdb
           );
           newGame.updateFromAPI(result);
+          includeOdds && newGame.updateOddsFromAPI(result);
           games.push(newGame);
         }
         return games;

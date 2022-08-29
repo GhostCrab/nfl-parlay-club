@@ -1,1 +1,19 @@
-<p>games works!</p>
+<div class="container">
+    <div class="content">
+      <div class="list">
+        <div class="list-header">
+          List of Games
+        </div>
+        <app-list
+          [games$]="allGames$"
+          (gameEmitter)="selectGame($event)"
+        ></app-list>
+      </div>
+      <!-- <app-detail
+        [game]="selectedGame"
+        *ngIf="selectedGame"
+        (deleteGame)="deleteGame()"
+        (updateGame)="updateGame()"
+      ></app-detail> -->
+    </div>
+  </div>

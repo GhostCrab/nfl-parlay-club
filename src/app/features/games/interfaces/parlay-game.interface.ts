@@ -2,7 +2,10 @@ import { Query } from '@angular/core';
 import { GameDatabaseService } from 'src/app/core/game-database.service';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
 import { TeamDatabaseService } from 'src/app/core/team-database.service';
-import { NFLData, NFLResults } from '../../nfl/interfaces/nfl.interface';
+import {
+  NFLData,
+  NFLResults,
+} from '../../../core/interfaces/nfl-api.interface';
 import { IParlayTeam } from '../../teams/interfaces/parlay-team.interface';
 
 export interface IParlayGame {
@@ -21,7 +24,9 @@ export interface IParlayGame {
 
   updateFromDatabase(gamedb: GameDatabaseService): void;
   updateFromAPI(result: NFLResults): void;
+  updateOddsFromAPI(result: NFLResults): void;
   updateScoreAndDate(game: IParlayGame): void;
+  updateOdds(game: IParlayGame): void;
   toParlayGameRow(): IParlayGameRow;
 }
 
@@ -55,7 +60,7 @@ export class ParlayGame implements IParlayGame {
 
       this.gameID = dbdata.gameID;
       this.home = teamdb.fromID(dbdata.homeTeamID);
-      this.away = teamdb.fromID(dbdata.homeTeamID);
+      this.away = teamdb.fromID(dbdata.awayTeamID);
       this.gt = dbdata.gt;
       this.week = dbdata.week;
       this.season = dbdata.season;
@@ -108,6 +113,12 @@ export class ParlayGame implements IParlayGame {
     this.awayScore = game.awayScore;
   }
 
+  updateOdds(game: IParlayGame): void {
+    this.fav = game.fav;
+    this.spread = game.spread;
+    this.ou = game.ou;
+  }
+
   updateFromAPI(result: NFLResults): void {
     this.gt = new Date(result.date);
     this.week = getWeekFromDate(this.gt);
@@ -115,6 +126,27 @@ export class ParlayGame implements IParlayGame {
     if (this.complete) {
       this.homeScore = result.team2Score;
       this.awayScore = result.team1Score;
+    }
+  }
+
+  updateOddsFromAPI(result: NFLResults): void {
+    for (const odds of result.odds) {
+      if (odds.provider === 'CONSENSUS') {
+        // round spread to nearest half point
+        const spread = Math.round(odds.spread * 2) / 2; //(Math.round((odds.spread * 10) / 5) * 5) / 5
+        
+        // positive spread favors away team
+        if (spread > 0) {
+          this.fav = this.away;
+          this.spread = -spread;
+        } else {
+          this.fav = this.home;
+          this.spread = spread;
+        }
+
+        // round ou to nearest half point
+        this.ou = Math.round(odds.overUnder * 2) / 2; //(Math.round((odds.overUnder * 10) / 5) * 5) / 5
+      }
     }
   }
 

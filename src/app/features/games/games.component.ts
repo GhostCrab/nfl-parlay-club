@@ -17,6 +17,7 @@ import { GameDatabaseService } from 'src/app/core/game-database.service';
 
 import { IParlayGame, ParlayGame } from './interfaces/parlay-game.interface';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
+import { OddsApiService } from 'src/app/core/odds-api.service';
 
 const rounds = [
   'Preseason Week 1',
@@ -45,53 +46,51 @@ const rounds = [
 @Component({
   selector: 'app-games',
   templateUrl: './games.component.html',
-  styleUrls: ['./games.component.css'],
+  styleUrls: ['./games.component.scss'],
 })
 export class GamesComponent implements OnInit {
   allGames$: Observable<IParlayGame[]>;
+  selectedGame?: IParlayGame;
 
   constructor(
     private readonly nfl: NFLApiService,
     private readonly teamdb: TeamDatabaseService,
-    private readonly gamedb: GameDatabaseService
+    private readonly gamedb: GameDatabaseService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     console.log('TESTING GAMES');
     const week = 1;
 
-    // this.allGames$ = this.gamedb.getAll();
-    // this.allGames$.subscribe(data => {console.log(data)})
+    this.allGames$ = this.gamedb.getAll();
 
-    this.gamedb.getAll().subscribe(data => console.log(data));
+    const dbgames = await firstValueFrom(this.gamedb.getAll());
+    const apigames = await firstValueFrom(this.nfl.getGames(week, true));
 
-    // const dbgames = await firstValueFrom(this.gamedb.getAll());
-    
+    for (const apigame of apigames) {
+      // find game in dbgames
+      const dbgame = dbgames.find((dbgame) => {
+        return (
+          dbgame.home.teamID === apigame.home.teamID && dbgame.week === apigame.week
+        );
+      });
 
-    // const apigames = await firstValueFrom(this.nfl.getGames(week));
-
-    // for (const apigame of apigames) {
-    //   // find game in dbgames
-    //   const dbgame = dbgames.find((dbgame) => {
-    //     return (
-    //       dbgame.home.teamID === apigame.home.teamID && dbgame.week === apigame.week
-    //     );
-    //   });
-
-    //   if (dbgame) {
-    //     dbgame.updateScoreAndDate(apigame);
-    //     console.log(
-    //       `Found and updated W${dbgame.week} ${dbgame.away.abbr} @ ${dbgame.home.abbr}`
-    //     );
-    //   } else {
-    //     console.log(
-    //       `Unable to find W${apigame.week} ${apigame.away.abbr} @ ${apigame.home.abbr} in db`
-    //     );
-    //     this.gamedb.addGame(apigame);
-    //     console.log(`Added new game:`);
-    //     console.log(apigame);
-    //   }
-    // }
+      if (dbgame) {
+        dbgame.updateScoreAndDate(apigame);
+        dbgame.updateOdds(apigame);
+        // console.log(
+        //   `Found and updated W${dbgame.week} ${dbgame.away.abbr} @ ${dbgame.home.abbr}`
+        // );
+        this.gamedb.updateGame(dbgame);
+      } else {
+        // console.log(
+        //   `Unable to find W${apigame.week} ${apigame.away.abbr} @ ${apigame.home.abbr} in db`
+        // );
+        this.gamedb.addGame(apigame);
+        console.log(`Added new game: `);
+        console.log(apigame);
+      }
+    }
 
     // const newgames = await firstValueFrom(this.gamedb.getAll());
     // console.log(newgames);
@@ -99,9 +98,12 @@ export class GamesComponent implements OnInit {
 
 
 
-    // console.log(dbgames);
     // for (const dbgame of dbgames) {
     //   this.gamedb.delete(dbgame.gameID);
     // }
+  }
+
+  selectGame(game: IParlayGame) {
+    this.selectedGame = game;
   }
 }

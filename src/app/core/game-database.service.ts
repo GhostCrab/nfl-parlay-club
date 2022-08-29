@@ -114,23 +114,17 @@ export class GameDatabaseService {
     return collectionData(q) as Observable<IParlayGameRow[]>;
   }
 
-  // updateGame(game: IParlayGame) {
-  //   if (!game.gameID) {
-  //     // try to query for game, if game doesnt exist in database, assign an id to it and move on, if it does exist, update game's fields with ones
-  //     const docID = doc(this.gameCollection);
-  //     game.gameID = docID.id;
-  //   }
+  updateGame(game: IParlayGame): Promise<void> {
+    if (!game.gameID) {
+      throw new Error(`Attempting to update a game with no ID W${game.week} ${game.away.abbr} @ ${game.home.abbr}`);
+    }
 
-  //   const cg = collectionGroup(this.firestore, this.gameCollection.id);
-  //   const constraints = [
-  //     where('homeTeamID', '==', game.home.teamID),
-  //     where('week', '==', game.week),
-  //     where('season', '==', game.season),
-  //   ];
-
-  //   const q = query(cg, ...constraints);
-  //   return collectionData(q) as Observable<IParlayGameRow[]>;
-  // }
+    const pickDocumentReference = doc(
+      this.firestore,
+      `games/${game.gameID}`
+    );
+    return updateDoc(pickDocumentReference, { ...game.toParlayGameRow() });
+  }
 
   addGame(game: IParlayGame) {
     if (game.gameID === "") {
