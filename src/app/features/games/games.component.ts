@@ -15,7 +15,11 @@ import { NFLApiService } from 'src/app/core/nfl-api.service';
 import { TeamDatabaseService } from 'src/app/core/team-database.service';
 import { GameDatabaseService } from 'src/app/core/game-database.service';
 
-import { IParlayGame, ParlayGame } from './interfaces/parlay-game.interface';
+import {
+  getWeekFromAmbig,
+  IParlayGame,
+  ParlayGame,
+} from './interfaces/parlay-game.interface';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
 import { OddsApiService } from 'src/app/core/odds-api.service';
 
@@ -55,12 +59,13 @@ export class GamesComponent implements OnInit {
   constructor(
     private readonly nfl: NFLApiService,
     private readonly teamdb: TeamDatabaseService,
-    private readonly gamedb: GameDatabaseService,
+    private readonly gamedb: GameDatabaseService
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('TESTING GAMES');
-    const week = 1;
+    //const week = 1;
+    const week = Math.max(getWeekFromAmbig(new Date()),1);
+    console.log(`TESTING WEEK ${week}`);
 
     this.allGames$ = this.gamedb.getAll();
 
@@ -71,7 +76,8 @@ export class GamesComponent implements OnInit {
       // find game in dbgames
       const dbgame = dbgames.find((dbgame) => {
         return (
-          dbgame.home.teamID === apigame.home.teamID && dbgame.week === apigame.week
+          dbgame.home.teamID === apigame.home.teamID &&
+          dbgame.week === apigame.week
         );
       });
 
@@ -94,9 +100,6 @@ export class GamesComponent implements OnInit {
 
     // const newgames = await firstValueFrom(this.gamedb.getAll());
     // console.log(newgames);
-
-
-
 
     // for (const dbgame of dbgames) {
     //   this.gamedb.delete(dbgame.gameID);

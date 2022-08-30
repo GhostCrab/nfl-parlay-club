@@ -1,5 +1,5 @@
 <div class="list-container" style="max-width: 600px">
-  <mat-grid-list cols="12" rowHeight="3em" *ngFor="let game of games$ | async">
+  <mat-grid-list cols="13" rowHeight="3em" *ngFor="let game of games$ | async">
     <mat-grid-tile colspan="4"
       ><mat-checkbox class="checkbox-style">
         <div class="team-name">
@@ -25,13 +25,15 @@
         </div></mat-checkbox
       ></mat-grid-tile
     >
-    <mat-grid-tile colspan="2"
-      ><mat-checkbox class="checkbox-style"> Over </mat-checkbox></mat-grid-tile
-    >
+    <mat-grid-tile colspan="1">+{{ game.ou }}</mat-grid-tile>
     <mat-grid-tile colspan="2"
       ><mat-checkbox class="checkbox-style">
         Under
       </mat-checkbox></mat-grid-tile
+    >
+
+    <mat-grid-tile colspan="2"
+      ><mat-checkbox class="checkbox-style"> Over </mat-checkbox></mat-grid-tile
     >
   </mat-grid-list>
 
