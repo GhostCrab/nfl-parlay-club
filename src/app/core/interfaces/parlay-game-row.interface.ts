@@ -1,8 +1,10 @@
+import { Timestamp } from "@angular/fire/firestore";
+
 export interface IParlayGameRow {
     gameID: string;
     homeTeamID: number;
     awayTeamID: number;
-    gt: Date;
+    gt: Timestamp;
     week: number;
     season: number;
     favTeamID: number;

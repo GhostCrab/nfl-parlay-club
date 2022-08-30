@@ -8,9 +8,10 @@ import { ListComponent } from './components/list/list.component';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatGridListModule } from '@angular/material/grid-list'
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [GamesComponent, ListComponent],
-  imports: [CommonModule, GamesRoutingModule, MatCheckboxModule, MatGridListModule],
+  imports: [CommonModule, GamesRoutingModule, MatCheckboxModule, MatGridListModule, MatButtonModule],
 })
 export class GamesModule {}

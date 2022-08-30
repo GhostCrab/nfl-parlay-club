@@ -22,6 +22,8 @@ import {
 } from './interfaces/parlay-game.interface';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
 import { OddsApiService } from 'src/app/core/odds-api.service';
+import { ParlayTeam } from '../teams/interfaces/parlay-team.interface';
+import { ParlayPick } from '../picks/interfaces/parlay-pick.interface';
 
 const rounds = [
   'Preseason Week 1',
@@ -106,7 +108,17 @@ export class GamesComponent implements OnInit {
     // }
   }
 
-  selectGame(game: IParlayGame) {
-    this.selectedGame = game;
+  //game: IParlayGame, team: ParlayTeam
+  selectPicks(picks: Array<ParlayPick>) {
+    for (const pick of picks) {
+      if (pick.team.isOU()) {
+        console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.name} +${pick.game.ou}`)
+      } else {
+        if (pick.game.fav.teamID === pick.team.teamID)
+          console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} ${pick.game.spread}`)
+        else
+          console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} +${-pick.game.spread}`)
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { ParlayUser } from '../features/users/interfaces/parlay-user.interface';
+import { IParlayUser } from '../features/users/interfaces/parlay-user.interface';
 
 function isEmail(str: string) {
   return str.includes('@');
@@ -10,7 +10,7 @@ function isEmail(str: string) {
   providedIn: 'root',
 })
 export class UserDatabaseService {
-  private users: ParlayUser[] = [
+  private users: IParlayUser[] = [
     { userID: 0, name: 'ANDREW', email: 'ACKILPATRICK@GMAIL.COM' },
     { userID: 1, name: 'BARDIA', email: 'BBAKHTARI@GMAIL.COM' },
     { userID: 2, name: 'COOPER', email: 'COOPER.KOCSIS@MATTEL.COM' },
@@ -46,10 +46,11 @@ export class UserDatabaseService {
   fromID(userID: number) {
     if (userID < this.users.length && userID >= 0)
       return this.users[userID];
-    return;
+    
+    throw new Error(`Unable to find user with ID ${userID}`);
   }
 
-  fromAmbig(input: ParlayUser | string | number) {
+  fromAmbig(input: IParlayUser | string | number) {
     switch (typeof input) {
       case "number": return this.fromID(input);
       case "string": {

@@ -12,7 +12,7 @@ import { Firestore, collectionData, docData } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ParlayPick } from '../features/picks/interfaces/parlay-pick.interface';
+import { IParlayPick } from '../features/picks/interfaces/parlay-pick.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +32,7 @@ export class PickDatabaseService {
   getAll() {
     return collectionData(this.pickCollection, {
       idField: 'id',
-    }) as Observable<ParlayPick[]>;
+    }) as Observable<IParlayPick[]>;
   }
 
   get(id: number) {
@@ -40,14 +40,14 @@ export class PickDatabaseService {
     return docData(pickDocumentReference, { idField: 'id' });
   }
 
-  create(pick: ParlayPick) {
+  create(pick: IParlayPick) {
     return addDoc(this.pickCollection, pick);
   }
 
-  update(pick: ParlayPick) {
+  update(pick: IParlayPick) {
     const pickDocumentReference = doc(
       this.firestore,
-      `picks/${pick.userID}`
+      `picks/${pick.user.userID}`
     );
     return updateDoc(pickDocumentReference, { ...pick });
   }

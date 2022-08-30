@@ -6,7 +6,7 @@
         </div>
         <app-list
           [games$]="allGames$"
-          (gameEmitter)="selectGame($event)"
+          (pickEmitter)="selectPicks($event)"
         ></app-list>
       </div>
       <!-- <app-detail

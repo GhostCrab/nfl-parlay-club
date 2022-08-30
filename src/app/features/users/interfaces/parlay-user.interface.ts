@@ -1,4 +1,4 @@
-export interface ParlayUser {
+export interface IParlayUser {
   userID: number;
   name: string;
   email: string;

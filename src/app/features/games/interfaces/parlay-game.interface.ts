@@ -1,4 +1,5 @@
 import { Query } from '@angular/core';
+import { Timestamp } from '@angular/fire/firestore';
 import { GameDatabaseService } from 'src/app/core/game-database.service';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
 import { TeamDatabaseService } from 'src/app/core/team-database.service';
@@ -22,7 +23,6 @@ export interface IParlayGame {
   homeScore: number;
   awayScore: number;
 
-  updateFromDatabase(gamedb: GameDatabaseService): void;
   updateFromAPI(result: NFLResults): void;
   updateOddsFromAPI(result: NFLResults): void;
   updateScoreAndDate(game: IParlayGame): void;
@@ -61,7 +61,7 @@ export class ParlayGame implements IParlayGame {
       this.gameID = dbdata.gameID;
       this.home = teamdb.fromID(dbdata.homeTeamID);
       this.away = teamdb.fromID(dbdata.awayTeamID);
-      this.gt = dbdata.gt;
+      this.gt = dbdata.gt.toDate();
       this.week = dbdata.week;
       this.season = dbdata.season;
       this.fav = teamdb.fromID(dbdata.favTeamID);
@@ -150,19 +150,12 @@ export class ParlayGame implements IParlayGame {
     }
   }
 
-  updateFromDatabase(gamedb: GameDatabaseService): void {
-    gamedb.fromParlayGame(this).subscribe({
-      next: (data) => console.log(data),
-      complete: () => console.log('COMPLETE'),
-    });
-  }
-
   toParlayGameRow(): IParlayGameRow {
     return {
       gameID: this.gameID,
       homeTeamID: this.home.teamID,
       awayTeamID: this.away.teamID,
-      gt: this.gt,
+      gt: Timestamp.fromDate(this.gt),
       week: this.week,
       season: this.season,
       favTeamID: this.fav.teamID,

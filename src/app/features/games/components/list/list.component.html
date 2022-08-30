@@ -1,7 +1,14 @@
 <div class="list-container" style="max-width: 600px">
   <mat-grid-list cols="13" rowHeight="3em" *ngFor="let game of games$ | async">
     <mat-grid-tile colspan="4"
-      ><mat-checkbox class="checkbox-style">
+      ><mat-checkbox
+        (change)="selectPick($event, game, game.away)"
+        class="checkbox-style"
+        [checked]="
+          checked[game.gameID] && checked[game.gameID][game.away.teamID]
+        "
+        [disabled]="disabled[game.gameID]"
+      >
         <div class="team-name">
           <img class="team-img" src="{{ game.away.iconURL }}" />
           {{ game.away.name }}
@@ -14,7 +21,14 @@
     >
     <!-- <mat-grid-tile colspan="1">@ </mat-grid-tile> -->
     <mat-grid-tile colspan="4"
-      ><mat-checkbox class="checkbox-style">
+      ><mat-checkbox
+        (change)="selectPick($event, game, game.home)"
+        class="checkbox-style"
+        [checked]="
+          checked[game.gameID] && checked[game.gameID][game.home.teamID]
+        "
+        [disabled]="disabled[game.gameID]"
+      >
         <div class="team-name">
           <img class="team-img" src="{{ game.home.iconURL }}" />
           {{ game.home.name }}
@@ -27,16 +41,27 @@
     >
     <mat-grid-tile colspan="1">+{{ game.ou }}</mat-grid-tile>
     <mat-grid-tile colspan="2"
-      ><mat-checkbox class="checkbox-style">
+      ><mat-checkbox
+        (change)="selectPick($event, game, 'UNDER')"
+        class="checkbox-style"
+        [checked]="checked[game.gameID] && checked[game.gameID][32]"
+        [disabled]="disabled[game.gameID]"
+      >
         Under
       </mat-checkbox></mat-grid-tile
     >
 
     <mat-grid-tile colspan="2"
-      ><mat-checkbox class="checkbox-style"> Over </mat-checkbox></mat-grid-tile
+      ><mat-checkbox
+        (change)="selectPick($event, game, 'OVER')"
+        class="checkbox-style"
+        [checked]="checked[game.gameID] && checked[game.gameID][33]"
+        [disabled]="disabled[game.gameID]"
+      >
+        Over
+      </mat-checkbox></mat-grid-tile
     >
   </mat-grid-list>
-
   <!-- <mat-card
       *ngFor="let pokemon of pokemon$ | async"
       (click)="selectPokemon(pokemon)"
@@ -53,3 +78,10 @@
       </mat-card-content>
     </mat-card> -->
 </div>
+<button type="button" mat-raised-button (click)="clear()" color="primary">
+  Clear
+</button>
+<button type="button" mat-raised-button (click)="submit()" color="primary" style="margin-left: 5px">
+  Submit
+</button>
+
