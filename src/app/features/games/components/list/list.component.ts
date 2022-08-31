@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { GameDatabaseService } from 'src/app/core/services/game-database.service';
 import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';

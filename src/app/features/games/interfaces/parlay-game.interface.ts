@@ -25,9 +25,23 @@ export interface IParlayGame {
 
   updateFromAPI(result: NFLResults): void;
   updateOddsFromAPI(result: NFLResults): void;
-  updateScoreAndDate(game: IParlayGame): void;
-  updateOdds(game: IParlayGame): void;
+  updateScoreAndDate(game: IParlayGame): boolean;
+  updateOdds(game: IParlayGame): boolean;
+  updateAll(game: IParlayGame): boolean
   toParlayGameRow(): IParlayGameRow;
+  writeToDb(gamedb: GameDatabaseService): Promise<void>;
+  addToDb(gamedb: GameDatabaseService): Promise<void>;
+  toString(): string;
+}
+
+function generateGameUID(game: IParlayGame) {
+  function pad(num: number) {
+    let numstr = num.toString();
+    while (numstr.length < 2) numstr = '0' + num;
+    return numstr;
+  }
+
+  return `${pad(game.week)}${pad(game.home.teamID)}`;
 }
 
 export class ParlayGame implements IParlayGame {
@@ -43,6 +57,7 @@ export class ParlayGame implements IParlayGame {
   public complete: boolean;
   public homeScore: number;
   public awayScore: number;
+  private dirty: boolean;
 
   public constructor(
     home: string,
@@ -54,6 +69,7 @@ export class ParlayGame implements IParlayGame {
   public constructor(dbdata: IParlayGameRow, teamdb: TeamDatabaseService);
 
   constructor(...args: any[]) {
+    this.dirty = false;
     // database constructor
     if (args.length === 2) {
       const [dbdata, teamdb] = args as [IParlayGameRow, TeamDatabaseService];
@@ -93,9 +109,9 @@ export class ParlayGame implements IParlayGame {
       }
 
       this.season = 2022;
+      this.gameID = generateGameUID(this);
 
       // uninitalized members
-      this.gameID = '';
       this.fav = this.home;
       this.spread = 0;
       this.ou = 0;
@@ -105,18 +121,77 @@ export class ParlayGame implements IParlayGame {
     }
   }
 
-  updateScoreAndDate(game: IParlayGame): void {
-    this.gt = game.gt;
-    this.week = game.week;
-    this.complete = game.complete;
-    this.homeScore = game.homeScore;
-    this.awayScore = game.awayScore;
+  updateScoreAndDate(game: IParlayGame): boolean {
+    let updated = false;
+    if (this.gt.getTime() !== game.gt.getTime()) {
+      console.log(`${this.toString()} this.gt.getTime() !== game.gt.getTime(): ${this.gt.getTime()} !== ${game.gt.getTime()}`)
+      this.gt = game.gt;
+      updated = true;
+    }
+
+    if (this.week !== game.week) {
+      console.log(`${this.toString()} this.week !== game.week: ${this.week} !== ${game.week}`);
+      this.week = game.week;
+      updated = true;
+    }
+
+    if (this.complete !== game.complete) {
+      console.log(`${this.toString()} this.complete !== game.complete: ${this.complete} !== ${game.complete}`);
+      this.complete = game.complete;
+      updated = true;
+    }
+
+    if (this.homeScore !== game.homeScore) {
+      console.log(`${this.toString()} this.homeScore !== game.homeScore: ${this.homeScore} !== ${game.homeScore}`);
+      this.homeScore = game.homeScore;
+      updated = true;
+    }
+
+    if (this.awayScore !== game.awayScore) {
+      console.log(`${this.toString()} this.awayScore !== game.awayScore: ${this.awayScore} !== ${game.awayScore}`);
+      this.awayScore = game.awayScore;
+      updated = true;
+    }
+
+    if (updated) {
+      this.dirty = true;
+    }
+
+    return updated;
   }
 
-  updateOdds(game: IParlayGame): void {
-    this.fav = game.fav;
-    this.spread = game.spread;
-    this.ou = game.ou;
+  updateOdds(game: IParlayGame): boolean {
+    let updated = false;
+    if (this.fav.teamID !== game.fav.teamID) {
+      console.log(`${this.toString()} this.fav.teamID !== game.fav.teamID: ${this.fav.teamID} !== ${game.fav.teamID}`);
+      this.fav = game.fav;
+      updated = true;
+    }
+
+    if (this.spread !== game.spread) {
+      console.log(`${this.toString()} this.spread !== game.spread: ${this.spread} !== ${game.spread}`);
+      this.spread = game.spread;
+      updated = true;
+    }
+
+    if (this.ou !== game.ou) {
+      console.log(`${this.toString()} this.ou !== game.ou: ${this.ou} !== ${game.ou}`);
+      this.ou = game.ou;
+      updated = true;
+    }
+
+    if (updated) {
+      this.dirty = true;
+    }
+
+    return updated;
+  }
+
+  updateAll(game: IParlayGame): boolean {
+    const u1 = this.updateScoreAndDate(game);
+    const u2 = this.updateOdds(game);
+
+    return u1 || u2;
   }
 
   updateFromAPI(result: NFLResults): void {
@@ -134,7 +209,7 @@ export class ParlayGame implements IParlayGame {
       if (odds.provider === 'CONSENSUS') {
         // round spread to nearest half point
         const spread = Math.round(odds.spread * 2) / 2; //(Math.round((odds.spread * 10) / 5) * 5) / 5
-        
+
         // positive spread favors away team
         if (spread > 0) {
           this.fav = this.away;
@@ -165,6 +240,30 @@ export class ParlayGame implements IParlayGame {
       homeScore: this.homeScore,
       awayScore: this.awayScore,
     };
+  }
+
+  async writeToDb(gamedb: GameDatabaseService): Promise<void> {
+    if (this.dirty) {
+      console.log(`Updating ${this.toString()} in db`);
+      await gamedb.updateGame(this);
+      this.dirty = false;
+    }
+  }
+
+  async addToDb(gamedb: GameDatabaseService): Promise<void> {
+    console.log(`Adding ${this.toString()} to db`);
+    await gamedb.addGame(this);
+  }
+
+  toString() {
+    return `W${this.week} ${this.away.abbr} @ ${this.home.abbr} [${this.spread} / ${this.ou}]`
+  }
+
+  static sort(a: IParlayGame, b: IParlayGame): number {
+    if (a.gt.getTime() - b.gt.getTime() !== 0) {
+      return a.gt.getTime() - b.gt.getTime();
+    }
+    return a.away.name.localeCompare(b.away.name);
   }
 }
 
