@@ -5,6 +5,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
+import { Auth, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 
@@ -17,19 +18,27 @@ export class NavBarComponent implements OnInit {
   navElement: HTMLElement | null;
 
   isDrawerOpen: boolean;
+  show: boolean;
 
   @Output()
   drawerToggleEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private auth: Auth) {}
 
   ngOnInit() {
     this.navElement = null;
     this.isDrawerOpen = false;
+    this.show = false;
+
+    
   }
 
   ngAfterViewInit() {
     this.navElement = <HTMLElement>document.getElementById('navbar');
+    this.show = this.auth.currentUser !== null;
+    this.auth.onAuthStateChanged((user) => {
+        this.show = user !== null
+    })
   }
 
   @HostListener('window:scroll', ['$event'])
