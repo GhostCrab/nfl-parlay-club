@@ -1,0 +1,13 @@
+<mat-toolbar>
+  <mat-toolbar-row>
+    <div>
+      <a mat-button [routerLink]="'/dashboard'"> Dashboard </a>
+      <a mat-button [routerLink]="'/games'"> Games </a>
+      <a mat-button [routerLink]="'/picks'"> Picks </a>
+    </div>
+    <span class="flexExpand"></span>
+    <div>
+      <a mat-button (click)="logout()" color="primary"> Logout </a>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>

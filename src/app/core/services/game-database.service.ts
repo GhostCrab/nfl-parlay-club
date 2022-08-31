@@ -23,14 +23,14 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import {
   IParlayTeam,
   ParlayTeam,
-} from '../features/teams/interfaces/parlay-team.interface';
+} from '../../features/teams/interfaces/parlay-team.interface';
 import {
   getWeekFromAmbig,
   getWeekFromDate,
   IParlayGame,
   ParlayGame,
-} from '../features/games/interfaces/parlay-game.interface';
-import { IParlayGameRow } from './interfaces/parlay-game-row.interface';
+} from '../../features/games/interfaces/parlay-game.interface';
+import { IParlayGameRow } from '../interfaces/parlay-game-row.interface';
 import { TeamDatabaseService } from './team-database.service';
 
 @Injectable({

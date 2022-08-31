@@ -4,8 +4,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { NFLData } from './interfaces/nfl-api.interface';
-import { ParlayGame } from '../features/games/interfaces/parlay-game.interface';
+import { NFLData } from '../interfaces/nfl-api.interface';
+import { ParlayGame } from '../../features/games/interfaces/parlay-game.interface';
 import { TeamDatabaseService } from './team-database.service';
 
 @Injectable({

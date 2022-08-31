@@ -1,0 +1,28 @@
+mat-toolbar {
+  background-color: #ffffff11;
+  display: flex;
+  justify-content: right;
+  height: 2.5em;
+}
+
+.flexExpand {
+  flex: 1 1 auto;
+}
+
+.btn {
+  background-color: #5eccd6;
+  border-radius: 20px;
+  color: #fff;
+  padding: 10px 30px;
+  text-decoration: none;
+  transition: 0.5s background-color;
+}
+
+a:hover {
+  border-bottom: 2px solid #5eccd6;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #52b7c0;
+}

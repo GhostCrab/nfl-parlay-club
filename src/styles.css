@@ -2,5 +2,22 @@
 
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #1e1e1e;}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #1e1e1e;
+}
+
+.background {
+  align-items: center;
+  background-image: url("/assets/mountains.png");
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  padding-top: 10%;
+}

@@ -14,7 +14,7 @@ export const environment = {
     authDomain: 'nfl-parlay-club.firebaseapp.com',
     messagingSenderId: '340422475086',
     measurementId: 'G-C1VQC0WRKB',
-  }
+  },
 };
 
 /*

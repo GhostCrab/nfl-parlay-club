@@ -1,8 +1,8 @@
 import { Query } from '@angular/core';
 import { Timestamp } from '@angular/fire/firestore';
-import { GameDatabaseService } from 'src/app/core/game-database.service';
+import { GameDatabaseService } from 'src/app/core/services/game-database.service';
 import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
-import { TeamDatabaseService } from 'src/app/core/team-database.service';
+import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
 import {
   NFLData,
   NFLResults,

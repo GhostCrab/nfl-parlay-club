@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Observable } from 'rxjs';
-import { GameDatabaseService } from 'src/app/core/game-database.service';
-import { TeamDatabaseService } from 'src/app/core/team-database.service';
-import { UserDatabaseService } from 'src/app/core/user-database.service';
+import { GameDatabaseService } from 'src/app/core/services/game-database.service';
+import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
+import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 import { ParlayPick } from 'src/app/features/picks/interfaces/parlay-pick.interface';
 import { ParlayTeam } from 'src/app/features/teams/interfaces/parlay-team.interface';
 

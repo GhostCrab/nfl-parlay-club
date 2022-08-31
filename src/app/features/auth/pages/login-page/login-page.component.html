@@ -1,0 +1,16 @@
+<div class="background">
+  <div class="login-container">
+    <div class="text-container">
+      <h1>Welcome</h1>
+      <p>
+        If you havent signed up yet, hit the button below to get started.
+      </p>
+      <button mat-button routerLink="/register">Sign up</button>
+    </div>
+    <div class="form-container">
+      <h1>Parlay Club 2022 Login</h1>
+      <h5>Sign in with your email</h5>
+      <login-form (formData)="login($event)"></login-form>
+    </div>
+  </div>
+</div>

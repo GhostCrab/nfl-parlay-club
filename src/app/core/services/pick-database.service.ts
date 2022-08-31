@@ -12,7 +12,7 @@ import { Firestore, collectionData, docData } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { IParlayPick } from '../features/picks/interfaces/parlay-pick.interface';
+import { IParlayPick } from '../../features/picks/interfaces/parlay-pick.interface';
 
 @Injectable({
   providedIn: 'root'

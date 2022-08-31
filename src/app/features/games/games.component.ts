@@ -1,28 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  Observable,
-  filter,
-  tap,
-  map,
-  mergeMap,
-  forkJoin,
-  merge,
-  lastValueFrom,
-  firstValueFrom,
-} from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 
-import { NFLApiService } from 'src/app/core/nfl-api.service';
-import { TeamDatabaseService } from 'src/app/core/team-database.service';
-import { GameDatabaseService } from 'src/app/core/game-database.service';
+import { NFLApiService } from 'src/app/core/services/nfl-api.service';
+import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
+import { GameDatabaseService } from 'src/app/core/services/game-database.service';
 
 import {
   getWeekFromAmbig,
   IParlayGame,
-  ParlayGame,
 } from './interfaces/parlay-game.interface';
-import { IParlayGameRow } from 'src/app/core/interfaces/parlay-game-row.interface';
-import { OddsApiService } from 'src/app/core/odds-api.service';
-import { ParlayTeam } from '../teams/interfaces/parlay-team.interface';
 import { ParlayPick } from '../picks/interfaces/parlay-pick.interface';
 
 const rounds = [
@@ -66,7 +52,7 @@ export class GamesComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     //const week = 1;
-    const week = Math.max(getWeekFromAmbig(new Date()),1);
+    const week = Math.max(getWeekFromAmbig(new Date()), 1);
     console.log(`TESTING WEEK ${week}`);
 
     this.allGames$ = this.gamedb.getAll();
@@ -112,12 +98,20 @@ export class GamesComponent implements OnInit {
   selectPicks(picks: Array<ParlayPick>) {
     for (const pick of picks) {
       if (pick.team.isOU()) {
-        console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.name} +${pick.game.ou}`)
+        console.log(
+          `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.name} +${pick.game.ou}`
+        );
       } else {
         if (pick.game.fav.teamID === pick.team.teamID)
-          console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} ${pick.game.spread}`)
+          console.log(
+            `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} ${pick.game.spread}`
+          );
         else
-          console.log(`Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} +${-pick.game.spread}`)
+          console.log(
+            `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${
+              pick.team.abbr
+            } +${-pick.game.spread}`
+          );
       }
     }
   }

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import {
   IParlayTeam,
   ParlayTeam,
-} from '../features/teams/interfaces/parlay-team.interface';
+} from '../../features/teams/interfaces/parlay-team.interface';
 
 @Injectable({
   providedIn: 'root',

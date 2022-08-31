@@ -3,7 +3,7 @@ import { Observable, filter, tap } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
 
-import { PickDatabaseService } from 'src/app/core/pick-database.service';
+import { PickDatabaseService } from 'src/app/core/services/pick-database.service';
 import { ParlayPick } from './interfaces/parlay-pick.interface';
 
 @Component({

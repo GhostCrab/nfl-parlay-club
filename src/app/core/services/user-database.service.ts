@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { IParlayUser } from '../features/users/interfaces/parlay-user.interface';
+import { IParlayUser } from '../../features/users/interfaces/parlay-user.interface';
 
 function isEmail(str: string) {
   return str.includes('@');
