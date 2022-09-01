@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 
 import { IParlayUser } from '../../features/users/interfaces/parlay-user.interface';
 
@@ -19,7 +20,11 @@ export class UserDatabaseService {
     { userID: 5, name: 'TJ', email: 'TYERKE@YAHOO.COM' },
   ];
 
-  constructor() {}
+  constructor(private readonly auth: Auth) {}
+
+  currentUser() {
+    return this.fromAmbig(this.auth.currentUser?.email);
+  }
 
   allUsers() {
     return this.users;
@@ -31,7 +36,7 @@ export class UserDatabaseService {
       if (user.name === capName) return user;
     }
 
-    return;
+    throw new Error(`Unable to find valid user with Name: ${name}`);
   }
 
   fromEmail(email: string) {
@@ -40,20 +45,23 @@ export class UserDatabaseService {
       if (user.email === capEmail) return user;
     }
 
-    return;
+    throw new Error(`Unable to find valid user with Email: ${email}`);
   }
 
   fromID(userID: number) {
-    if (userID < this.users.length && userID >= 0)
-      return this.users[userID];
-    
+    if (userID < this.users.length && userID >= 0) return this.users[userID];
+
     throw new Error(`Unable to find user with ID ${userID}`);
   }
 
-  fromAmbig(input: IParlayUser | string | number) {
+  fromAmbig(input: IParlayUser | string | number | null | undefined) {
+    if (input === null || input === undefined)
+      throw Error(`Attempted to look up falsy user`);
+
     switch (typeof input) {
-      case "number": return this.fromID(input);
-      case "string": {
+      case 'number':
+        return this.fromID(input);
+      case 'string': {
         if (isEmail(input)) return this.fromEmail(input);
         return this.fromName(input);
       }

@@ -120,9 +120,21 @@ export class GameDatabaseService {
     );
   }
 
-  async updateWeek(week: number): Promise<void> {
+  fromWeek(week: number) {
+    return this.getAll().pipe(
+      map((data) => {
+        return data.filter((a) => a.week === week);
+      })
+    );
+  }
+
+  async waitForInit(timeout = 1000) {
     // wait until the internal dataset has been initialized before updating
-    while (!this.initialized) await new Promise((r) => setTimeout(r, 2000));
+    while (!this.initialized) await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  async updateWeek(week: number): Promise<void> {
+    await this.waitForInit();
 
     const apigames = await firstValueFrom(this.nflapi.getGames(week, true));
 
@@ -154,10 +166,27 @@ export class GameDatabaseService {
 
   addGame(game: IParlayGame) {
     console.log(`addGame: Querying DB`);
-    
+
     const gameDocumentReference = doc(this.gameCollection, game.gameID);
-    return setDoc(gameDocumentReference, game.toParlayGameRow())
+    return setDoc(gameDocumentReference, game.toParlayGameRow());
     //return addDoc(this.gameCollection, game.toParlayGameRow());
+  }
+
+  fromID(gameID: string) {
+    this.initCheck();
+
+    const game = this.allGames.get(gameID);
+
+    if (!game) throw Error(`Unable to find game with ID ${gameID}`);
+
+    return new ParlayGame(game, this.teamdb);
+  }
+
+  initCheck() {
+    if (!this.initialized)
+      throw Error(
+        `Unable to query for game by ID - Game Service Not Initialized`
+      );
   }
 
   // addGame(game: IParlayGame) {

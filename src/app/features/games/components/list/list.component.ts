@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { map, Observable } from 'rxjs';
 import { GameDatabaseService } from 'src/app/core/services/game-database.service';
@@ -24,7 +25,8 @@ export class ListComponent implements OnInit {
   constructor(
     private readonly teamdb: TeamDatabaseService,
     private readonly gamedb: GameDatabaseService,
-    private readonly userdb: UserDatabaseService
+    private readonly userdb: UserDatabaseService,
+    private readonly auth: Auth
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +40,7 @@ export class ListComponent implements OnInit {
         this.disabled[game.gameID] = now > game.gt;
 
         this.games[game.gameID] = game;
-      }      
+      }
     });
   }
 
@@ -100,7 +102,14 @@ export class ListComponent implements OnInit {
       for (const teamID in this.checked[gameID]) {
         if (this.checked[gameID][teamID]) {
           allPicks.push(
-            new ParlayPick(this.userdb.fromID(1), this.games[gameID], this.teamdb.fromID(~~teamID))
+            new ParlayPick(
+              this.userdb.fromAmbig(this.auth.currentUser?.email).userID,
+              this.games[gameID].gameID,
+              ~~teamID,
+              this.userdb,
+              this.gamedb,
+              this.teamdb
+            )
           );
         }
       }

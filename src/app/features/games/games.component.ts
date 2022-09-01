@@ -9,7 +9,10 @@ import {
   getWeekFromAmbig,
   IParlayGame,
 } from './interfaces/parlay-game.interface';
-import { ParlayPick } from '../picks/interfaces/parlay-pick.interface';
+import { IParlayPick, ParlayPick } from '../picks/interfaces/parlay-pick.interface';
+import { PickDatabaseService } from 'src/app/core/services/pick-database.service';
+import { Auth } from '@angular/fire/auth';
+import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 
 @Component({
   selector: 'app-games',
@@ -20,58 +23,51 @@ export class GamesComponent implements OnInit {
   allGames$: Observable<IParlayGame[]>;
   selectedGame?: IParlayGame;
 
+  week: number;
+
   constructor(
     private readonly nfl: NFLApiService,
     private readonly teamdb: TeamDatabaseService,
-    private readonly gamedb: GameDatabaseService
-  ) {
-    this.allGames$ = this.gamedb.getAll().pipe(
-      map((data) => {
-        return data.filter((a) => a.week === 1);
-      })
-    );
+    private readonly gamedb: GameDatabaseService,
+    private readonly pickdb: PickDatabaseService,
+    private readonly userdb: UserDatabaseService,
+  ) {}
+
+  async ngOnInit() {
+    //const week = 1;
+    this.week = Math.max(getWeekFromAmbig(new Date()), 1);
+    console.log(`TESTING WEEK ${this.week}`);
+
+    this.allGames$ = this.gamedb.fromWeek(this.week);
+
+    this.pickdb.fromUserWeek(this.userdb.currentUser().userID, this.week).subscribe(data => console.log(data));
   }
 
-  async ngOnInit(): Promise<void> {
-    //const week = 1;
-    const week = Math.max(getWeekFromAmbig(new Date()), 1);
-    console.log(`TESTING WEEK ${week}`);
-
-    const dbgames = await firstValueFrom(this.gamedb.getAll());
-    console.log(dbgames);
-
-    for (const week in [...Array(2).keys()]) {
+  async updateAll() {
+    for (const week in [...Array(18).keys()]) {
       const weekNum = Number(week) + 1;
       console.log(`Updating Week ${weekNum}`);
       await this.gamedb.updateWeek(weekNum);
     }
-
-    const dbgames2 = await firstValueFrom(this.gamedb.getAll());
-    console.log(dbgames2);
-
-    // for (const dbgame of dbgames) {
-    //   this.gamedb.delete(dbgame.gameID);
-    // }
   }
 
-  selectPicks(picks: Array<ParlayPick>) {
-    for (const pick of picks) {
-      if (pick.team.isOU()) {
-        console.log(
-          `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.name} +${pick.game.ou}`
-        );
-      } else {
-        if (pick.game.fav.teamID === pick.team.teamID)
-          console.log(
-            `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${pick.team.abbr} ${pick.game.spread}`
-          );
-        else
-          console.log(
-            `Selected Pick ${pick.game.away.abbr} @ ${pick.game.home.abbr}: ${
-              pick.team.abbr
-            } +${-pick.game.spread}`
-          );
-      }
+  async deleteAll() {
+    const dbgames = await firstValueFrom(this.gamedb.getAll());
+    for (const dbgame of dbgames) {
+      this.gamedb.delete(dbgame.gameID);
     }
+  }
+
+  async selectPicks(picks: Array<IParlayPick>) {
+    for (const pick of picks) {
+      console.log(`Selected Pick ${pick.toString()}`);
+    }
+
+    // get all picks for the week selected
+    const currentPicks = await firstValueFrom(this.pickdb.fromUserWeek(this.userdb.currentUser().userID, this.week));
+    // compare queried picks to submitted picks
+    // remove missing picks
+    // add new picks
+
   }
 }
