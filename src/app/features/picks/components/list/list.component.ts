@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IParlayGame } from '../../interfaces/parlay-game.interface';
+import { IParlayPick } from '../../interfaces/parlay-pick.interface';
 
 @Component({
   selector: 'app-list',
@@ -8,8 +8,8 @@ import { IParlayGame } from '../../interfaces/parlay-game.interface';
   styleUrls: ['./list.component.css']
 })
 export class ListComponent implements OnInit {
-  @Input() games$: Observable<IParlayGame[]>;
-
+  @Input() picks$: Observable<IParlayPick[]>;
+  
   constructor() { }
 
   ngOnInit(): void {

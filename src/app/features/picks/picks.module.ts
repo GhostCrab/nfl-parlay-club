@@ -9,9 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 
 import { PicksRoutingModule } from './picks-routing.module';
 import { PicksComponent } from './picks.component';
+import { ListComponent } from './components/list/list.component';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @NgModule({
-  declarations: [PicksComponent],
+  declarations: [PicksComponent, ListComponent],
   imports: [
     CommonModule,
     PicksRoutingModule,
@@ -20,6 +22,7 @@ import { PicksComponent } from './picks.component';
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
+    MatGridListModule
   ],
 })
 export class PicksModule {}

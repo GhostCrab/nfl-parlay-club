@@ -44,6 +44,12 @@ const routes: Routes = [
     ...canActivate(redirectUnauthorizedToLogin),
   },
   {
+    path: 'picker',
+    loadChildren: () =>
+      import('./features/picker/picker.module').then((m) => m.PickerModule),
+    ...canActivate(redirectUnauthorizedToLogin),
+  },
+  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full',

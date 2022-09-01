@@ -1,4 +1,6 @@
+import { IParlayPickRow } from 'src/app/core/interfaces/parlay-pick-row.interface';
 import { GameDatabaseService } from 'src/app/core/services/game-database.service';
+import { pickRowUID } from 'src/app/core/services/pick-database.service';
 import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 import { IParlayGame } from '../../games/interfaces/parlay-game.interface';
@@ -11,6 +13,7 @@ export interface IParlayPick {
   team: IParlayTeam;
 
   toString(): string;
+  toParlayPickRow(): IParlayPickRow;
 }
 
 export class ParlayPick implements IParlayPick {
@@ -51,5 +54,14 @@ export class ParlayPick implements IParlayPick {
       return a.game.gt.getTime() - b.game.gt.getTime();
     }
     return a.game.away.name.localeCompare(b.game.away.name);
+  }
+
+  toParlayPickRow(): IParlayPickRow {
+    return {
+      pickID: pickRowUID(this.game.gameID, this.team.teamID, this.user.userID),
+      gameID: this.game.gameID,
+      teamID: this.team.teamID,
+      userID: this.user.userID
+    }
   }
 }

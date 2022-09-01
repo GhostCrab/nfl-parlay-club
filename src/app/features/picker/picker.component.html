@@ -1,0 +1,10 @@
+<div class="content">
+  <div class="list">
+    <div class="list-header">MAKE YOUR PICKS FOR WEEK {{week}}</div>
+    <app-list
+      [games$]="allGames$"
+      [picks$]="allPicks$"
+      (pickEmitter)="selectPicks($event)"
+    ></app-list>
+  </div>
+</div>

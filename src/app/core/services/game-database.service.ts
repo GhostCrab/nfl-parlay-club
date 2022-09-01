@@ -46,7 +46,7 @@ import { NFLApiService } from './nfl-api.service';
 function gameRowUID(game: IParlayGameRow) {
   function pad(num: number) {
     let numstr = num.toString();
-    while (numstr.length < 2) numstr = '0' + num;
+    while (numstr.length < 2) numstr = '0' + numstr;
     return numstr;
   }
 

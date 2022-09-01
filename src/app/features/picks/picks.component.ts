@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { PickDatabaseService } from 'src/app/core/services/pick-database.service';
 import { ParlayPick } from './interfaces/parlay-pick.interface';
+import { getWeekFromAmbig } from '../games/interfaces/parlay-game.interface';
 
 @Component({
   selector: 'app-picks',
@@ -15,29 +16,16 @@ export class PicksComponent implements OnInit {
   allPicks$!: Observable<ParlayPick[]>;
   selectedPick!: ParlayPick | undefined;
 
+  week: number;
+
   constructor(
     private readonly pickService: PickDatabaseService,
     private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.week = Math.max(getWeekFromAmbig(new Date()), 1);
+
     this.allPicks$ = this.pickService.getAll();
-
-    // this.pickService.create({
-    //   id: 1,
-    //   user: 2,
-    //   game: 3,
-    //   team: 4
-    // })
   }
-  
-  selectPick(pick: ParlayPick) {
-    this.selectedPick = pick;
-  }
-
-  deletePick() {
-    // this.pickService.delete(this.selectedPick!.id);
-    this.selectedPick = undefined;
-  }
-
 }

@@ -1,17 +1,9 @@
-    <div class="content">
-      <div class="list">
-        <div class="list-header">
-          List of Games
-        </div>
-        <app-list
-          [games$]="allGames$"
-          (pickEmitter)="selectPicks($event)"
-        ></app-list>
-      </div>
-      <!-- <app-detail
-        [game]="selectedGame"
-        *ngIf="selectedGame"
-        (deleteGame)="deleteGame()"
-        (updateGame)="updateGame()"
-      ></app-detail> -->
+<div class="content">
+    <div class="list">
+      <div class="list-header">GAMES FOR WEEK {{week}}</div>
+      <app-list
+        [games$]="allGames$"
+      ></app-list>
     </div>
+  </div>
+  

@@ -42,9 +42,9 @@ export class TeamDatabaseService {
     new ParlayTeam(29, 'TAMPA BAY', 'BUCCANEERS', 'TB', "https://ssl.gstatic.com/onebox/media/sports/logos/efP_3b5BgkGE-HMCHx4huQ_48x48.png", true),
     new ParlayTeam(30, 'TENNESSEE', 'TITANS', 'TEN', "https://ssl.gstatic.com/onebox/media/sports/logos/9J9dhhLeSa3syZ1bWXRjaw_48x48.png", true),
     new ParlayTeam(31, 'WASHINGTON', 'COMMANDERS', 'WAS', "https://ssl.gstatic.com/onebox/media/sports/logos/o0CCwss-QfFnJaVdGIHFmQ_48x48.png", true),
-    new ParlayTeam(32, 'UNDER', 'UNDER', 'UND', "", false),
-    new ParlayTeam(33, 'OVER', 'OVER', 'OVR', "", false),
-    new ParlayTeam(34, 'PUSH', 'PUSH', 'PSH', "", false),
+    new ParlayTeam(32, 'UNDER', 'UNDER', 'UND', "https://api.iconify.design/mdi/chevron-double-down.svg", false),
+    new ParlayTeam(33, 'OVER', 'OVER', 'OVR', "https://api.iconify.design/mdi/chevron-double-up.svg", false),
+    new ParlayTeam(34, 'PUSH', 'PUSH', 'PSH', "https://api.iconify.design/mdi/equal.svg", false),
   ];
 
   constructor() {}

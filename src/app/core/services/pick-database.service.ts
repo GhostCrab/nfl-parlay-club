@@ -7,7 +7,7 @@ import {
   doc,
   updateDoc,
 } from '@firebase/firestore';
-import { Firestore, collectionData, docData } from '@angular/fire/firestore';
+import { Firestore, collectionData, docData, setDoc, writeBatch, WriteBatch } from '@angular/fire/firestore';
 
 import { Injectable } from '@angular/core';
 import { filter, map, Observable, ReplaySubject } from 'rxjs';
@@ -21,14 +21,14 @@ import { GameDatabaseService } from './game-database.service';
 import { UserDatabaseService } from './user-database.service';
 import { TeamDatabaseService } from './team-database.service';
 
-function pickRowUID(pick: IParlayPickRow) {
+export function pickRowUID(gameID: string, teamID: number, userID: number) {
   function pad(num: number, length = 2) {
     let numstr = num.toString();
-    while (numstr.length < length) numstr = '0' + num;
+    while (numstr.length < length) numstr = '0' + numstr;
     return numstr;
   }
 
-  return `${pick.gameID}${pad(pick.teamID)}${pad(pick.userID, 6)}`;
+  return `${gameID}${pad(teamID)}${pad(userID, 6)}`;
 }
 
 @Injectable({
@@ -71,7 +71,7 @@ export class PickDatabaseService {
         this.allPicks$.next(data);
         this.allPicks.clear();
         for (const pickRow of data) {
-          this.allPicks.set(pickRowUID(pickRow), pickRow);
+          this.allPicks.set(pickRow.pickID, pickRow);
         }
         this.initialized = true;
       });
@@ -107,25 +107,41 @@ export class PickDatabaseService {
     return this.getAll().pipe(map(data => data.filter(a => a.user.userID === userID && a.game.week === week)))
   }
 
-  get(id: number) {
-    const pickDocumentReference = doc(this.firestore, `picks/${id}`);
-    return docData(pickDocumentReference, { idField: 'id' });
+  addPick(pick: IParlayPick, batch?: WriteBatch) {
+    console.log(`Adding pick to db: ${pick.toString()}`)
+    const pickRow = pick.toParlayPickRow();
+    const pickDocumentReference = doc(this.pickCollection, pickRow.pickID);
+
+    if (batch)
+      return batch.set(pickDocumentReference, pickRow);
+
+    return setDoc(pickDocumentReference, pickRow);
   }
 
-  create(pick: IParlayPick) {
-    return addDoc(this.pickCollection, pick);
-  }
+  removePick(pick: IParlayPick, batch?: WriteBatch) {
+    console.log(`Removing pick from db: ${pick.toString()}`)
+    const pickRow = pick.toParlayPickRow();
+    const pickDocumentReference = doc(this.pickCollection, pickRow.pickID);
 
-  update(pick: IParlayPick) {
-    const pickDocumentReference = doc(
-      this.firestore,
-      `picks/${pick.user.userID}`
-    );
-    return updateDoc(pickDocumentReference, { ...pick });
-  }
+    if (batch)
+      return batch.delete(pickDocumentReference);
 
-  delete(id: number) {
-    const pickDocumentReference = doc(this.firestore, `picks/${id}`);
     return deleteDoc(pickDocumentReference);
+  }
+
+  batchWrite(addedPicks: IParlayPick[], removedPicks: IParlayPick[]) {
+    if (addedPicks.length === 0 && removedPicks.length == 0) return;
+
+    const batch = writeBatch(this.firestore);
+
+    for (const pick of addedPicks) {
+      this.addPick(pick, batch)
+    }
+
+    for (const pick of removedPicks) {
+      this.removePick(pick, batch)
+    }
+
+    return batch.commit();
   }
 }

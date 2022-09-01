@@ -1,1 +1,7 @@
-<p>picks works!</p>
+<div class="content">
+  <div class="list">
+    <div class="list-header">YOUR PICKS FOR WEEK {{week}}</div>
+    <app-list [picks$]="allPicks$"></app-list>
+  </div>
+</div>
+<button type="button" mat-raised-button color="primary" routerLink="/picker">Update</button>

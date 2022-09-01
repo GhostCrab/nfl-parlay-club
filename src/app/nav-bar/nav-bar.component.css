@@ -18,6 +18,13 @@ mat-toolbar {
   transition: 0.5s background-color;
 }
 
+a {
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
 a:hover {
   border-bottom: 2px solid #5eccd6;
   cursor: pointer;

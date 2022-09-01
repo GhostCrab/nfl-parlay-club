@@ -1,0 +1,45 @@
+<div class="list-container" style="max-width: 600px">
+  <mat-grid-list
+    class="pick-list"
+    cols="10"
+    rowHeight="3em"
+    *ngFor="let pick of picks$ | async"
+  >
+    <mat-grid-tile colspan="3">
+      <div class="team-name">
+        <img class="team-img" src="{{ pick.game.away.iconURL }}" />
+        {{ pick.game.away.name }}
+      </div>
+    </mat-grid-tile>
+
+    <mat-grid-tile colspan="1"><div>@</div></mat-grid-tile>
+
+    <mat-grid-tile colspan="3">
+      <div class="team-name">
+        <img class="team-img" src="{{ pick.game.home.iconURL }}" />
+        {{ pick.game.home.name }}
+      </div>
+      <!-- <mat-grid-tile colspan="1">@ </mat-grid-tile> -->
+    </mat-grid-tile>
+    <mat-grid-tile colspan="3">
+      <div class="team-name">
+        <div *ngIf="!pick.team.isOU(); else doOU">
+          <div class="team-name">
+            <img class="team-img" src="{{ pick.team.iconURL }}" />
+            {{ pick.team.name }}
+            <div *ngIf="pick.team.teamID === pick.game.fav.teamID; else elseBlock" style="padding-left: 4px">
+              {{ pick.game.spread }}
+            </div>
+            <ng-template #elseBlock>+{{ -pick.game.spread }}</ng-template>
+          </div>
+        </div>
+        <ng-template #doOU
+          >
+          <img class="team-img" src="{{ pick.team.iconURL }}" />
+          {{ pick.team.name }} +{{ pick.game.ou }}</ng-template
+        >
+      </div>
+      <!-- <mat-grid-tile colspan="1">@ </mat-grid-tile> -->
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

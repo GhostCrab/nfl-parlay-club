@@ -37,7 +37,7 @@ export interface IParlayGame {
 function generateGameUID(game: IParlayGame) {
   function pad(num: number) {
     let numstr = num.toString();
-    while (numstr.length < 2) numstr = '0' + num;
+    while (numstr.length < 2) numstr = '0' + numstr;
     return numstr;
   }
 
