@@ -6,6 +6,7 @@ import { DashboardComponent } from './dashboard.component';
 import { GamesListComponent } from './games-list/games-list.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PicksListComponent } from './picks-list/picks-list.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { PicksListComponent } from './picks-list/picks-list.component';
   imports: [
     CommonModule,
     DashboardRoutingModule,
-    MatGridListModule
+    MatGridListModule,
+    MatButtonModule
   ]
 })
 export class DashboardModule { }

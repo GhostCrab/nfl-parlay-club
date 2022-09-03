@@ -8,6 +8,7 @@ import {
 import { Auth, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
+import { UserDatabaseService } from '../core/services/user-database.service';
 
 @Component({
   selector: 'nav-bar',
@@ -19,26 +20,31 @@ export class NavBarComponent implements OnInit {
 
   isDrawerOpen: boolean;
   show: boolean;
+  userID: number;
 
   @Output()
   drawerToggleEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  constructor(private authService: AuthService, private router: Router, private auth: Auth) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private auth: Auth,
+    private readonly userdb: UserDatabaseService
+  ) {}
 
   ngOnInit() {
     this.navElement = null;
     this.isDrawerOpen = false;
     this.show = false;
-
-    
   }
 
   ngAfterViewInit() {
     this.navElement = <HTMLElement>document.getElementById('navbar');
     this.show = this.auth.currentUser !== null;
     this.auth.onAuthStateChanged((user) => {
-        this.show = user !== null
-    })
+      this.show = user !== null;
+      this.userID = this.userdb.currentUser().userID;
+    });
   }
 
   @HostListener('window:scroll', ['$event'])
@@ -66,5 +72,5 @@ export class NavBarComponent implements OnInit {
       .logout()
       .then(() => this.router.navigate(['/']))
       .catch((e) => console.log(e.message));
-  }  
+  }
 }

@@ -26,3 +26,10 @@
 .main-section {
   min-height: 125vh;
 }
+
+.app-content {
+  padding-top: 64px;
+  margin: 10px;
+  width: 80%;
+  margin: 0 auto;
+}

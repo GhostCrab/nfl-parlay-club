@@ -1,6 +1,5 @@
 <div
   class="list-container"
-  style="max-width: 600px"
   *ngIf="(picks$ | async)?.length; else noPicks"
 >
   <mat-grid-list

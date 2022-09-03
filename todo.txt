@@ -1,6 +1,7 @@
-[ ] Make pages only show data for currently logged in user
+[x] Make pages only show data for currently logged in user
 [ ] Week selector for Picks and Picker pages
 [ ] Add Game, Pick and Score data to the Dashboard
 [ ] Add Score page
     [ ] Implement scoring
-[ ] Add mechanism to lock in odds
+[ ] Add game control page to update games and update odds
+

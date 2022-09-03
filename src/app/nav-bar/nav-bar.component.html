@@ -1,7 +1,7 @@
 <mat-toolbar *ngIf="show" color="primary">
   <mat-toolbar-row color="primary">
     <h1 color="primary" style="font-size: 3em; text-shadow: 3px 3px black; margin-right: 10px;">PC '22</h1>
-    <div>
+    <div *ngIf="userID === 4">
       <a mat-button [routerLink]="'/dashboard'" color="primary"> Dashboard </a>
       <a mat-button [routerLink]="'/games'"> Games </a>
       <a mat-button [routerLink]="'/picks'"> Picks </a>
