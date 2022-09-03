@@ -7,10 +7,17 @@ import {
   doc,
   updateDoc,
 } from '@firebase/firestore';
-import { Firestore, collectionData, docData, setDoc, writeBatch, WriteBatch } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collectionData,
+  docData,
+  setDoc,
+  writeBatch,
+  WriteBatch,
+} from '@angular/fire/firestore';
 
 import { Injectable } from '@angular/core';
-import { filter, map, Observable, ReplaySubject } from 'rxjs';
+import { filter, from, map, Observable, ReplaySubject } from 'rxjs';
 
 import {
   IParlayPick,
@@ -20,6 +27,8 @@ import { IParlayPickRow } from '../interfaces/parlay-pick-row.interface';
 import { GameDatabaseService } from './game-database.service';
 import { UserDatabaseService } from './user-database.service';
 import { TeamDatabaseService } from './team-database.service';
+import { IParlayUser } from 'src/app/features/users/interfaces/parlay-user.interface';
+import { user } from '@angular/fire/auth';
 
 export function pickRowUID(gameID: string, teamID: number, userID: number) {
   function pad(num: number, length = 2) {
@@ -29,6 +38,11 @@ export function pickRowUID(gameID: string, teamID: number, userID: number) {
   }
 
   return `${gameID}${pad(teamID)}${pad(userID, 6)}`;
+}
+
+export interface IPickDict {
+  user: IParlayUser;
+  picks: Observable<IParlayPick[]>;
 }
 
 @Injectable({
@@ -104,27 +118,47 @@ export class PickDatabaseService {
   }
 
   fromUserWeek(userID: number, week: number): Observable<IParlayPick[]> {
-    return this.getAll().pipe(map(data => data.filter(a => a.user.userID === userID && a.game.week === week)))
+    return this.getAll().pipe(
+      map((data) =>
+        data.filter((a) => a.user.userID === userID && a.game.week === week)
+      )
+    );
+  }
+
+  fromUserWeekOtherSafe(userID: number, week: number): IPickDict[] {
+    const dict: IPickDict[] = [];
+    for (const user of this.userdb.allUsers()) {
+      if (user.userID === userID) continue;
+
+      dict.push({
+        user: user,
+        picks: this.getAll().pipe(
+          map((data) =>
+            data.filter((a) => a.user.userID === user.userID && a.game.week === week && a.isSafeToSee())
+          )
+        ),
+      });
+    }
+
+    return dict;
   }
 
   addPick(pick: IParlayPick, batch?: WriteBatch) {
-    console.log(`Adding pick to db: ${pick.toString()}`)
+    console.log(`Adding pick to db: ${pick.toString()}`);
     const pickRow = pick.toParlayPickRow();
     const pickDocumentReference = doc(this.pickCollection, pickRow.pickID);
 
-    if (batch)
-      return batch.set(pickDocumentReference, pickRow);
+    if (batch) return batch.set(pickDocumentReference, pickRow);
 
     return setDoc(pickDocumentReference, pickRow);
   }
 
   removePick(pick: IParlayPick, batch?: WriteBatch) {
-    console.log(`Removing pick from db: ${pick.toString()}`)
+    console.log(`Removing pick from db: ${pick.toString()}`);
     const pickRow = pick.toParlayPickRow();
     const pickDocumentReference = doc(this.pickCollection, pickRow.pickID);
 
-    if (batch)
-      return batch.delete(pickDocumentReference);
+    if (batch) return batch.delete(pickDocumentReference);
 
     return deleteDoc(pickDocumentReference);
   }
@@ -135,11 +169,11 @@ export class PickDatabaseService {
     const batch = writeBatch(this.firestore);
 
     for (const pick of addedPicks) {
-      this.addPick(pick, batch)
+      this.addPick(pick, batch);
     }
 
     for (const pick of removedPicks) {
-      this.removePick(pick, batch)
+      this.removePick(pick, batch);
     }
 
     return batch.commit();

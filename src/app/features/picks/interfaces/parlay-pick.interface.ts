@@ -14,6 +14,7 @@ export interface IParlayPick {
 
   toString(): string;
   toParlayPickRow(): IParlayPickRow;
+  isSafeToSee(): boolean;
 }
 
 export class ParlayPick implements IParlayPick {
@@ -61,7 +62,15 @@ export class ParlayPick implements IParlayPick {
       pickID: pickRowUID(this.game.gameID, this.team.teamID, this.user.userID),
       gameID: this.game.gameID,
       teamID: this.team.teamID,
-      userID: this.user.userID
-    }
+      userID: this.user.userID,
+    };
+  }
+
+  isSafeToSee(): boolean {
+    // picks are safe to see if game has started or sunday games have started for this week
+    const now = new Date();
+    console.log(this.game.safeTime().toLocaleString())
+
+    return now >= this.game.safeTime();
   }
 }

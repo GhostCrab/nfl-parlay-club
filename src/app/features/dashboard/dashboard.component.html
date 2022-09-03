@@ -1,4 +1,15 @@
 <!-- <mat-toolbar><a (click)="logout()">Log out</a></mat-toolbar> -->
-<div class="dashboard-header">
-  <h1>Parlay Club 2022</h1>
+<div class="dashboard-content">
+  <div class="dashboard-header">
+    <h1>Parlay Club 2022</h1>
+  </div>
+  <app-games-list [games$]="allGames$"></app-games-list>
+  <div> <h2>MY PICKS</h2>
+    <app-picks-list [picks$]="myPicks$"></app-picks-list>
+  </div>
+
+  <div *ngFor="let pickDict of otherPicks" >
+    <h2>{{pickDict.user.name}}'S PICKS</h2>
+    <app-picks-list [picks$]="pickDict.picks"></app-picks-list>
+  </div>
 </div>

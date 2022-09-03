@@ -21,21 +21,9 @@ import {
 import {
   Firestore,
   collectionData,
-  docData,
-  collectionGroup,
-  query,
-  where,
-  getDocs,
   setDoc,
 } from '@angular/fire/firestore';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
 import {
-  IParlayTeam,
-  ParlayTeam,
-} from '../../features/teams/interfaces/parlay-team.interface';
-import {
-  getWeekFromAmbig,
-  getWeekFromDate,
   IParlayGame,
   ParlayGame,
 } from '../../features/games/interfaces/parlay-game.interface';
@@ -189,68 +177,9 @@ export class GameDatabaseService {
       );
   }
 
-  // addGame(game: IParlayGame) {
-  //   console.log(`addGame: Querying DB`);
-  //   console.log(game);
-  //   return addDoc(this.gameCollection, game.toParlayGameRow());
-  // }
-
   delete(id: string) {
     console.log(`delete: Querying DB`);
     const gameDocumentReference = doc(this.firestore, `games/${id}`);
     return deleteDoc(gameDocumentReference);
   }
 }
-
-// get(id: string) {
-//   console.log(`get: Querying DB`);
-//   const pickDocumentReference = doc(this.gameCollection, id);
-//   return docData(pickDocumentReference, { idField: 'gameID' });
-// }
-
-// fromWeek(date: number | Date, season: number = 2022) {
-//   console.log(`fromWeek: Querying DB`);
-//   const week = getWeekFromAmbig(date);
-
-//   const cg = collectionGroup(this.firestore, this.gameCollection.id);
-//   const constraints = [
-//     where('week', '==', week),
-//     where('season', '==', season),
-//   ];
-
-//   const q = query(cg, ...constraints);
-//   return collectionData(q) as Observable<IParlayGameRow[]>;
-// }
-
-// fromTeamDate(
-//   team: string | IParlayTeam,
-//   date: number | Date,
-//   season: number = 2022
-// ): Observable<IParlayGameRow[]> {
-//   console.log(`fromTeamDate: Querying DB`);
-//   const week = getWeekFromAmbig(date);
-//   const homeTeamID = this.teamdb.fromAmbig(team).teamID;
-
-//   const cg = collectionGroup(this.firestore, this.gameCollection.id);
-//   const constraints = [
-//     where('homeTeamID', '==', homeTeamID),
-//     where('week', '==', week),
-//     where('season', '==', season),
-//   ];
-
-//   const q = query(cg, ...constraints);
-//   return collectionData(q) as Observable<IParlayGameRow[]>;
-// }
-
-// fromParlayGame(game: IParlayGame): Observable<IParlayGameRow[]> {
-//   console.log(`fromParlayGame: Querying DB`);
-//   const cg = collectionGroup(this.firestore, this.gameCollection.id);
-//   const constraints = [
-//     where('homeTeamID', '==', game.home.teamID),
-//     where('week', '==', game.week),
-//     where('season', '==', game.season),
-//   ];
-
-//   const q = query(cg, ...constraints);
-//   return collectionData(q) as Observable<IParlayGameRow[]>;
-// }

@@ -9,12 +9,8 @@ import {
   getWeekFromAmbig,
   IParlayGame,
 } from './interfaces/parlay-game.interface';
-import {
-  IParlayPick,
-  ParlayPick,
-} from '../picks/interfaces/parlay-pick.interface';
+import { IParlayPick } from '../picks/interfaces/parlay-pick.interface';
 import { PickDatabaseService } from 'src/app/core/services/pick-database.service';
-import { Auth } from '@angular/fire/auth';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 
 @Component({
@@ -24,18 +20,11 @@ import { UserDatabaseService } from 'src/app/core/services/user-database.service
 })
 export class GamesComponent implements OnInit {
   allGames$: Observable<IParlayGame[]>;
-  allPicks$: Observable<IParlayPick[]>;
   selectedGame?: IParlayGame;
 
   week: number;
 
-  constructor(
-    private readonly nfl: NFLApiService,
-    private readonly teamdb: TeamDatabaseService,
-    private readonly gamedb: GameDatabaseService,
-    private readonly pickdb: PickDatabaseService,
-    private readonly userdb: UserDatabaseService
-  ) {}
+  constructor(private readonly gamedb: GameDatabaseService) {}
 
   async ngOnInit() {
     //const week = 1;

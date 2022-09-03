@@ -1,0 +1,26 @@
+<div class="list-container" style="max-width: 440px">
+  <mat-grid-list cols="10" rowHeight="3em" *ngFor="let game of games$ | async">
+    <mat-grid-tile colspan="4">
+      <div class="team-name">
+        <img class="team-img" src="{{ game.away.iconURL }}" />
+        {{ game.away.name }}
+        <div *ngIf="game.away.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
+         -{{-game.spread }}
+        </div>
+        <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile colspan="1">@ </mat-grid-tile>
+    <mat-grid-tile colspan="4"
+      ><div class="team-name">
+        <img class="team-img" src="{{ game.home.iconURL }}" />
+        {{ game.home.name }}
+        <div *ngIf="game.home.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
+          {{ game.spread }}
+        </div>
+        <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
+      </div></mat-grid-tile
+    >
+    <mat-grid-tile colspan="1"><div class="team-name">+{{ game.ou }}</div></mat-grid-tile>
+  </mat-grid-list>
+</div>

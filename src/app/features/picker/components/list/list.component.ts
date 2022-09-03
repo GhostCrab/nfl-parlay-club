@@ -36,7 +36,7 @@ export class ListComponent implements OnInit {
     this.games = {};
 
     this.games$.subscribe((data) => {
-      const now = new Date(`September 9, 2022 12:00:00 PM`);
+      const now = new Date();
       for (const game of data) {
         this.disabled[game.gameID] = now > game.gt;
 

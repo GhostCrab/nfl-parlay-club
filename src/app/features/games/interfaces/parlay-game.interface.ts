@@ -9,6 +9,8 @@ import {
 } from '../../../core/interfaces/nfl-api.interface';
 import { IParlayTeam } from '../../teams/interfaces/parlay-team.interface';
 
+const week1Start = new Date('2022-09-07T07:00:00Z');
+
 export interface IParlayGame {
   gameID: string;
   home: IParlayTeam;
@@ -27,10 +29,11 @@ export interface IParlayGame {
   updateOddsFromAPI(result: NFLResults): void;
   updateScoreAndDate(game: IParlayGame): boolean;
   updateOdds(game: IParlayGame): boolean;
-  updateAll(game: IParlayGame): boolean
+  updateAll(game: IParlayGame): boolean;
   toParlayGameRow(): IParlayGameRow;
   writeToDb(gamedb: GameDatabaseService): Promise<void>;
   addToDb(gamedb: GameDatabaseService): Promise<void>;
+  safeTime(): Date;
   toString(): string;
 }
 
@@ -102,7 +105,7 @@ export class ParlayGame implements IParlayGame {
       if (date <= 18) {
         this.week = date;
         this.gt = getDateFromWeek(this.week);
-        // assume sunday/noon
+        // assume sunday 10 AM Pacific
       } else {
         this.gt = new Date(date);
         this.week = getWeekFromDate(this.gt);
@@ -124,31 +127,49 @@ export class ParlayGame implements IParlayGame {
   updateScoreAndDate(game: IParlayGame): boolean {
     let updated = false;
     if (this.gt.getTime() !== game.gt.getTime()) {
-      console.log(`${this.toString()} this.gt.getTime() !== game.gt.getTime(): ${this.gt.getTime()} !== ${game.gt.getTime()}`)
+      console.log(
+        `${this.toString()} this.gt.getTime() !== game.gt.getTime(): ${this.gt.getTime()} !== ${game.gt.getTime()}`
+      );
       this.gt = game.gt;
       updated = true;
     }
 
     if (this.week !== game.week) {
-      console.log(`${this.toString()} this.week !== game.week: ${this.week} !== ${game.week}`);
+      console.log(
+        `${this.toString()} this.week !== game.week: ${this.week} !== ${
+          game.week
+        }`
+      );
       this.week = game.week;
       updated = true;
     }
 
     if (this.complete !== game.complete) {
-      console.log(`${this.toString()} this.complete !== game.complete: ${this.complete} !== ${game.complete}`);
+      console.log(
+        `${this.toString()} this.complete !== game.complete: ${
+          this.complete
+        } !== ${game.complete}`
+      );
       this.complete = game.complete;
       updated = true;
     }
 
     if (this.homeScore !== game.homeScore) {
-      console.log(`${this.toString()} this.homeScore !== game.homeScore: ${this.homeScore} !== ${game.homeScore}`);
+      console.log(
+        `${this.toString()} this.homeScore !== game.homeScore: ${
+          this.homeScore
+        } !== ${game.homeScore}`
+      );
       this.homeScore = game.homeScore;
       updated = true;
     }
 
     if (this.awayScore !== game.awayScore) {
-      console.log(`${this.toString()} this.awayScore !== game.awayScore: ${this.awayScore} !== ${game.awayScore}`);
+      console.log(
+        `${this.toString()} this.awayScore !== game.awayScore: ${
+          this.awayScore
+        } !== ${game.awayScore}`
+      );
       this.awayScore = game.awayScore;
       updated = true;
     }
@@ -163,19 +184,29 @@ export class ParlayGame implements IParlayGame {
   updateOdds(game: IParlayGame): boolean {
     let updated = false;
     if (this.fav.teamID !== game.fav.teamID) {
-      console.log(`${this.toString()} this.fav.teamID !== game.fav.teamID: ${this.fav.teamID} !== ${game.fav.teamID}`);
+      console.log(
+        `${this.toString()} this.fav.teamID !== game.fav.teamID: ${
+          this.fav.teamID
+        } !== ${game.fav.teamID}`
+      );
       this.fav = game.fav;
       updated = true;
     }
 
     if (this.spread !== game.spread) {
-      console.log(`${this.toString()} this.spread !== game.spread: ${this.spread} !== ${game.spread}`);
+      console.log(
+        `${this.toString()} this.spread !== game.spread: ${this.spread} !== ${
+          game.spread
+        }`
+      );
       this.spread = game.spread;
       updated = true;
     }
 
     if (this.ou !== game.ou) {
-      console.log(`${this.toString()} this.ou !== game.ou: ${this.ou} !== ${game.ou}`);
+      console.log(
+        `${this.toString()} this.ou !== game.ou: ${this.ou} !== ${game.ou}`
+      );
       this.ou = game.ou;
       updated = true;
     }
@@ -256,7 +287,7 @@ export class ParlayGame implements IParlayGame {
   }
 
   toString() {
-    return `W${this.week} ${this.away.abbr} @ ${this.home.abbr} [${this.spread} / ${this.ou}]`
+    return `W${this.week} ${this.away.abbr} @ ${this.home.abbr} [${this.spread} / ${this.ou}]`;
   }
 
   static sort(a: IParlayGame, b: IParlayGame): number {
@@ -265,11 +296,17 @@ export class ParlayGame implements IParlayGame {
     }
     return a.away.name.localeCompare(b.away.name);
   }
+
+  safeTime(): Date {
+    // safe time is either 10AM Pacific on the Sunday of the week the game is played, or the current game time, whichever is earlier
+    const sundayDate = getDateFromWeek(this.week);
+    if (sundayDate <= this.gt) return sundayDate;
+
+    return this.gt;
+  }
 }
 
 export function getWeekFromDate(gt: Date): number {
-  const week1Start = new Date('2022-09-07T07:00:00Z');
-  // console.log(week1Start);
   return (
     Math.floor(
       (gt.getTime() - week1Start.getTime()) / (7 * 24 * 60 * 60 * 1000)
@@ -278,12 +315,18 @@ export function getWeekFromDate(gt: Date): number {
 }
 
 export function getDateFromWeek(week: number) {
-  const week1Start = new Date('2022-09-07T07:00:00Z');
-  const ms12Hours = 12 * 60 * 60 * 1000;
+  const ms11Hours = 11 * 60 * 60 * 1000;
+  const ms10Hours = 10 * 60 * 60 * 1000;
   const ms4Days = 4 * 24 * 60 * 60 * 1000;
   const ms7Days = 7 * 24 * 60 * 60 * 1000;
+  if (week <= 8) {
+    return new Date(
+      week1Start.getTime() + ms10Hours + ms4Days + (week - 1) * ms7Days
+    );
+  }
+
   return new Date(
-    week1Start.getTime() + ms12Hours + ms4Days + (week - 1) * ms7Days
+    week1Start.getTime() + ms11Hours + ms4Days + (week - 1) * ms7Days
   );
 }
 
