@@ -15,6 +15,7 @@ export interface IParlayPick {
   toString(): string;
   toParlayPickRow(): IParlayPickRow;
   isSafeToSee(): boolean;
+  success(): boolean;
 }
 
 export class ParlayPick implements IParlayPick {
@@ -26,13 +27,13 @@ export class ParlayPick implements IParlayPick {
     userID: number,
     gameID: string,
     teamID: number,
-    userdb: UserDatabaseService,
-    gamedb: GameDatabaseService,
-    teamdb: TeamDatabaseService
+    private readonly userdb: UserDatabaseService,
+    private readonly gamedb: GameDatabaseService,
+    private readonly teamdb: TeamDatabaseService
   ) {
-    this.user = userdb.fromID(userID);
-    this.game = gamedb.fromID(gameID);
-    this.team = teamdb.fromID(teamID);
+    this.user = this.userdb.fromID(userID);
+    this.game = this.gamedb.fromID(gameID);
+    this.team = this.teamdb.fromID(teamID);
   }
 
   toString() {
@@ -67,11 +68,18 @@ export class ParlayPick implements IParlayPick {
   }
 
   isSafeToSee(): boolean {
+    if (this.user.userID === this.userdb.currentUser().userID) return true;
     // picks are safe to see if game has started or sunday games have started for this week
-    const now = new Date('2022-09-09T07:00:00Z');
-    console.log('now:' + now.toLocaleString())
-    console.log('safe:' + this.game.safeTime().toLocaleString())
+    //const now = new Date('2022-09-12T07:00:00Z');
+    //const now = new Date('2022-09-09T07:00:00Z');
+    const now = new Date();
+    console.log('now:' + now.toLocaleString());
+    console.log('safe:' + this.game.safeTime().toLocaleString());
 
     return now >= this.game.safeTime();
+  }
+
+  success(): boolean {
+    return true;
   }
 }

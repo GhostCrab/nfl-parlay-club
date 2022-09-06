@@ -7,12 +7,14 @@ import { GamesListComponent } from './games-list/games-list.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PicksListComponent } from './picks-list/picks-list.component';
 import { MatButtonModule } from '@angular/material/button';
+import { ScoreListComponent } from './score-list/score-list.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     GamesListComponent,
     PicksListComponent,
+    ScoreListComponent,
   ],
   imports: [
     CommonModule,

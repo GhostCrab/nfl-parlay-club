@@ -1,22 +1,22 @@
 <!-- <mat-toolbar><a (click)="logout()">Log out</a></mat-toolbar> -->
-<div class="dashboard-header">
+<!-- <div class="dashboard-header">
   <h1>Parlay Club 2022</h1>
-</div>
+</div> -->
 <div class="dashboard-content">
-  <div class="flex-item" style="margin-right: 10px;">
-    <h2 style="margin-bottom: 9px;">CURRENT GAMES</h2>
+  <div class="game-flex-item" style="margin-right: 10px">
+    <h2 style="margin-bottom: 9px">CURRENT GAMES</h2>
     <app-games-list [games$]="allGames$" class="flex-item"></app-games-list>
   </div>
-  <div class="flex-item">
+  <div class="pick-flex-item" style="margin-right: 10px">
     <div style="display: flex; margin-bottom: 5px">
-      <h2 >MY PICKS</h2>
+      <h2>MY PICKS</h2>
       <span class="flexExpand"></span>
       <button
         type="button"
         mat-raised-button
         color="primary"
         routerLink="/picker"
-        style="-size: 20px;"
+        style="-size: 20px"
       >
         Update Picks
       </button>
@@ -27,5 +27,11 @@
       <h2>{{ pickDict.user.name }}'S PICKS</h2>
       <app-picks-list [picks$]="pickDict.picks"></app-picks-list>
     </div>
+  </div>
+  <div class="score-flex-item">
+    <div style="display: flex; margin-bottom: 5px">
+      <h2>CLUB SCORE</h2>
+    </div>
+    <app-score-list [picks$]="allPicks$" [games$]="allGames$"></app-score-list>
   </div>
 </div>

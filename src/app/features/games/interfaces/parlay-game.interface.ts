@@ -33,8 +33,10 @@ export interface IParlayGame {
   toParlayGameRow(): IParlayGameRow;
   writeToDb(gamedb: GameDatabaseService): Promise<void>;
   addToDb(gamedb: GameDatabaseService): Promise<void>;
+  isThursdayGame(): boolean;
   safeTime(): Date;
   toString(): string;
+  status(): string;
 }
 
 function generateGameUID(game: IParlayGame) {
@@ -181,7 +183,18 @@ export class ParlayGame implements IParlayGame {
     return updated;
   }
 
-  updateOdds(game: IParlayGame): boolean {
+  updateOdds(game: IParlayGame, force = false): boolean {
+    // sanity check to not update odds after wednesday at midnight the current week
+    const ms10Hours = 10 * 60 * 60 * 1000;
+    const ms4Days = 4 * 24 * 60 * 60 * 1000;
+    const sundayDate = getDateFromWeek(this.week);
+    const cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms4Days);
+    const now = new Date();
+    if ( now > cutoffDate && !force)
+      throw new Error(`Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`)
+
+    // sunday date is 10AM, minus 10 hours, minus 
+
     let updated = false;
     if (this.fav.teamID !== game.fav.teamID) {
       console.log(
@@ -214,6 +227,9 @@ export class ParlayGame implements IParlayGame {
     if (updated) {
       this.dirty = true;
     }
+
+    // this.ou = 0;
+    // this.dirty = true;
 
     return updated;
   }
@@ -304,6 +320,29 @@ export class ParlayGame implements IParlayGame {
 
     return this.gt;
   }
+
+  isThursdayGame(): boolean {
+    const sundayDate = getDateFromWeek(this.week);
+    const ms2Days = 2 * 24 * 60 * 60 * 1000;
+    const fridayDate = new Date(sundayDate.getTime() - ms2Days);
+
+    if (this.gt > fridayDate) return false;
+
+    return true;
+  }
+
+  status(): string {
+    if (!this.complete) {
+      return this.gt.toLocaleString("en-US", {
+        weekday: "short"
+      }) + " " + this.gt.toLocaleString("en-US", {
+        dateStyle: "short",
+        timeStyle: "short"
+      });
+    }
+
+    return "";
+  }
 }
 
 export function getWeekFromDate(gt: Date): number {
@@ -314,6 +353,7 @@ export function getWeekFromDate(gt: Date): number {
   );
 }
 
+// Sunday 10 AM pacific for current week
 export function getDateFromWeek(week: number) {
   const ms11Hours = 11 * 60 * 60 * 1000;
   const ms10Hours = 10 * 60 * 60 * 1000;

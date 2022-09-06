@@ -1,0 +1,7 @@
+<div>
+  <div *ngFor="let score of scores$ | async" class="score-content">
+    <div><h3>{{ score[0] }}:</h3></div>
+    <span class="flexExpand"></span> 
+    <div><h3>{{ score[1] }}</h3></div>
+  </div>
+</div>

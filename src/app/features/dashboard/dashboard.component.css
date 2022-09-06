@@ -32,10 +32,20 @@ a {
 
 .dashboard-content {
   display: flex;
-  width: 80%;
+  margin-top: 10px;
 }
 
-.flex-item {
+.game-flex-item {
+  flex-grow: 5;
+  /* margin-left: 10px;
+  margin-right: 10px; */
+}
+
+.pick-flex-item{
+  flex-grow: 3;
+}
+
+.score-flex-item {
   flex-grow: 1;
   /* margin-left: 10px;
   margin-right: 10px; */

@@ -29,6 +29,7 @@ import { UserDatabaseService } from './user-database.service';
 import { TeamDatabaseService } from './team-database.service';
 import { IParlayUser } from 'src/app/features/users/interfaces/parlay-user.interface';
 import { user } from '@angular/fire/auth';
+import { IParlayGameRow } from '../interfaces/parlay-game-row.interface';
 
 export function pickRowUID(gameID: string, teamID: number, userID: number) {
   function pad(num: number, length = 2) {
@@ -45,11 +46,18 @@ export interface IPickDict {
   picks: Observable<IParlayPick[]>;
 }
 
+// dictionary of users to array of picks [thursday picks, other picks]
+export interface IPickCountDict {
+  user: IParlayUser;
+  picks: Observable<number[]>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class PickDatabaseService {
   private pickCollection: CollectionReference<DocumentData>;
+  private gameCollection: CollectionReference<DocumentData>;
   private allPicks: Map<string, IParlayPickRow>;
   private allPicks$: ReplaySubject<IParlayPickRow[]>;
 
@@ -63,6 +71,7 @@ export class PickDatabaseService {
   ) {
     try {
       this.pickCollection = collection(firestore, 'picks');
+      this.gameCollection = collection(firestore, 'games');
     } catch (e) {
       console.log(firestore);
       console.error(e);
@@ -77,17 +86,25 @@ export class PickDatabaseService {
     if (!this.allPicks$) {
       this.allPicks$ = new ReplaySubject(1);
 
-      const cd = collectionData(this.pickCollection, {
+      const pickCD = collectionData(this.pickCollection, {
         idField: 'pickID',
       }) as Observable<IParlayPickRow[]>;
 
-      cd.subscribe((data) => {
+      pickCD.subscribe((data) => {
         this.allPicks$.next(data);
         this.allPicks.clear();
         for (const pickRow of data) {
           this.allPicks.set(pickRow.pickID, pickRow);
         }
         this.initialized = true;
+      });
+
+      const gameCD = collectionData(this.gameCollection, {
+        idField: 'gameID',
+      }) as Observable<IParlayGameRow[]>;
+
+      gameCD.subscribe((data) => {
+        this.allPicks$.next(Array.from(this.allPicks.values()));
       });
     }
   }
@@ -125,7 +142,11 @@ export class PickDatabaseService {
     );
   }
 
-  fromUserWeekOtherSafe(userID: number, week: number): IPickDict[] {
+  fromUserWeekOther(
+    userID: number,
+    week: number,
+    safeOnly = false
+  ): IPickDict[] {
     const dict: IPickDict[] = [];
     for (const user of this.userdb.allUsers()) {
       if (user.userID === userID) continue;
@@ -133,9 +154,44 @@ export class PickDatabaseService {
       dict.push({
         user: user,
         picks: this.getAll().pipe(
-          map((data) =>
-            data.filter((a) => a.user.userID === user.userID && a.game.week === week && a.isSafeToSee())
-          )
+          map((data) => data.filter(
+            (a) =>
+              a.user.userID === user.userID &&
+              a.game.week === week &&
+              (a.isSafeToSee() || !safeOnly)
+          ))
+        ),
+      });
+    }
+
+    return dict;
+  }
+
+  fromUserWeekOtherCount(
+    userID: number,
+    week: number,
+    safeOnly = false
+  ): IPickCountDict[] {
+    const dict: IPickCountDict[] = [];
+    for (const user of this.userdb.allUsers()) {
+      if (user.userID === userID) continue;
+
+      dict.push({
+        user: user,
+        picks: this.getAll().pipe(
+          map((data) => {
+            const pickCounts = [0, 0];
+            const filteredData = data.filter(
+              (a) => a.user.userID === user.userID && a.game.week === week
+            );
+
+            for (const pick of filteredData) {
+              if (pick.game.isThursdayGame()) pickCounts[0]++;
+              else pickCounts[1]++;
+            }
+
+            return pickCounts;
+          })
         ),
       });
     }

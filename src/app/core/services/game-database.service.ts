@@ -83,7 +83,6 @@ export class GameDatabaseService {
         this.allGames$.next(data);
         this.allGames.clear();
         for (const gameRow of data) {
-          // this.allGames.set(gameRow.gameID, gameRow);
           this.allGames.set(gameRowUID(gameRow), gameRow);
         }
         this.initialized = true;
@@ -165,14 +164,14 @@ export class GameDatabaseService {
 
     const game = this.allGames.get(gameID);
 
-    if (!game) throw Error(`Unable to find game with ID ${gameID}`);
+    if (!game) throw new Error(`Unable to find game with ID ${gameID}`);
 
     return new ParlayGame(game, this.teamdb);
   }
 
   initCheck() {
     if (!this.initialized)
-      throw Error(
+      throw new Error(
         `Unable to query for game by ID - Game Service Not Initialized`
       );
   }

@@ -4,7 +4,7 @@ import { Observable, filter, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 
 import { PickDatabaseService } from 'src/app/core/services/pick-database.service';
-import { ParlayPick } from './interfaces/parlay-pick.interface';
+import { IParlayPick } from './interfaces/parlay-pick.interface';
 import { getWeekFromAmbig } from '../games/interfaces/parlay-game.interface';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 
@@ -14,8 +14,8 @@ import { UserDatabaseService } from 'src/app/core/services/user-database.service
   styleUrls: ['./picks.component.scss']
 })
 export class PicksComponent implements OnInit {
-  allPicks$!: Observable<ParlayPick[]>;
-  selectedPick!: ParlayPick | undefined;
+  allPicks$!: Observable<IParlayPick[]>;
+  selectedPick!: IParlayPick | undefined;
 
   week: number;
 

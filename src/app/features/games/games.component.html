@@ -1,9 +1,14 @@
 <div class="content">
-    <div class="list">
-      <div class="list-header">GAMES FOR WEEK {{week}}</div>
-      <app-list
-        [games$]="allGames$"
-      ></app-list>
-    </div>
+  <div class="list">
+    <button
+      type="button"
+      mat-raised-button
+      (click)="updateOdds()"
+      color="primary"
+    >
+      UPDATE ODDS
+    </button>
+    <div class="list-header">GAMES FOR WEEK {{ week }}</div>
+    <app-list [games$]="allGames$"></app-list>
   </div>
-  
+</div>

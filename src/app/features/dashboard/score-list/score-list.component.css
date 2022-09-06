@@ -1,0 +1,15 @@
+h3 {
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+  background-color: inherit;
+}
+
+.flexExpand {
+  flex: 1 1 auto;
+}
+
+.score-content {
+  display:flex;
+}

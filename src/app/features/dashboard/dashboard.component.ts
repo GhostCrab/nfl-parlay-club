@@ -16,6 +16,7 @@ import { IParlayPick } from '../picks/interfaces/parlay-pick.interface';
 })
 export class DashboardComponent implements OnInit {
   allGames$: Observable<IParlayGame[]>;
+  allPicks$: Observable<IParlayPick[]>;
   myPicks$: Observable<IParlayPick[]>;
   otherPicks: IPickDict[];
 
@@ -31,12 +32,14 @@ export class DashboardComponent implements OnInit {
     this.week = Math.max(getWeekFromAmbig(new Date()), 1);
 
     this.allGames$ = this.gamedb.fromWeek(this.week);
+    this.allPicks$ = this.pickdb.getAll();
+
     this.myPicks$ = this.pickdb.fromUserWeek(
       this.userdb.currentUser().userID,
       this.week
     );
 
-    this.otherPicks = this.pickdb.fromUserWeekOtherSafe(
+    this.otherPicks = this.pickdb.fromUserWeekOther(
       this.userdb.currentUser().userID,
       this.week
     );

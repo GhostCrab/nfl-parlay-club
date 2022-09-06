@@ -1,11 +1,17 @@
 mat-grid-list {
   border-width: 1px 1px 0px 1px;
   border-style: solid;
+  border-color: #1e1e1e;
+}
+
+.pick-count {
+  background-color: #1e1e1e;
 }
 
 .list-container {
   border-width: 0px 0px 1px 0px;
   border-style: solid;
+  border-color: #1e1e1e;
   background-color: white;
 }
 
