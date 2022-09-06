@@ -68,8 +68,9 @@ export class ParlayPick implements IParlayPick {
 
   isSafeToSee(): boolean {
     // picks are safe to see if game has started or sunday games have started for this week
-    const now = new Date();
-    console.log(this.game.safeTime().toLocaleString())
+    const now = new Date('2022-09-09T07:00:00Z');
+    console.log('now:' + now.toLocaleString())
+    console.log('safe:' + this.game.safeTime().toLocaleString())
 
     return now >= this.game.safeTime();
   }

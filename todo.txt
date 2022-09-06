@@ -1,3 +1,6 @@
+ng build --configuration production --aot
+firebase deploy
+
 [x] Make pages only show data for currently logged in user
 [ ] Week selector for Picks and Picker pages
 [ ] Add Game, Pick and Score data to the Dashboard
