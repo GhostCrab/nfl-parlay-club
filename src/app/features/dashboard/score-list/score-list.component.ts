@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 import { IParlayGame } from '../../games/interfaces/parlay-game.interface';
-import { IParlayPick } from '../../picks/interfaces/parlay-pick.interface';
+import { IParlayPick, PickStatus } from '../../picks/interfaces/parlay-pick.interface';
 
 @Component({
   selector: 'app-score-list',
@@ -57,9 +57,11 @@ export class ScoreListComponent implements OnInit {
 
       // for each pick by the user, collect by week
       // weeks 1-18 are normal weeks, week 0 is bonus opening day and week 19 is thanksgiving
-      const picksByWeek = new Array<Array<IParlayPick>>(20).fill(
-        new Array<IParlayPick>()
-      );
+      const picksByWeek: Array<Array<IParlayPick>> = [];
+
+      for (let i = 0; i < 20; i++) {
+        picksByWeek.push([]);
+      }
 
       for (const pick of picks) {
         if (pick.game.week === 1 && pick.game.isThursdayGame()) {
@@ -75,12 +77,10 @@ export class ScoreListComponent implements OnInit {
       for (const weekPicks of picksByWeek) {
         let tally = 0;
         for (const pick of weekPicks) {
-          // is pick good?
-          if (!pick.game.complete) continue;
-
-          if (pick.success()) {
+          const ps = pick.success();
+          if (ps === PickStatus.Success) {
             tally++;
-          } else {
+          } else if (ps === PickStatus.Fail || ps === PickStatus.Incomplete) {
             tally = 0;
             break;
           }

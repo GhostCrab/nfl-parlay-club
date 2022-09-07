@@ -12,12 +12,12 @@ mat-grid-tile {
   /* background: darkblue; */
   border-width: 1px 1px 0px 1px;
   border-style: solid;
+  background-color: white;
 }
 
 .list-container {
-  border-width: 0px 0px 1px 0px;
-  border-style: solid;
-  background-color: white;
+  background-color: #1e1e1e;
+  margin-bottom: 5px;
 }
 
 /* .checkbox-style {

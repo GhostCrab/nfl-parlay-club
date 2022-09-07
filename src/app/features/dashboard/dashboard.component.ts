@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
   otherPicks: IPickDict[];
 
   week: number;
+  userID: number;
 
   constructor(
     private readonly gamedb: GameDatabaseService,
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.userID = this.userdb.currentUser().userID;
     this.week = Math.max(getWeekFromAmbig(new Date()), 1);
 
     this.allGames$ = this.gamedb.fromWeek(this.week);
@@ -43,5 +45,9 @@ export class DashboardComponent implements OnInit {
       this.userdb.currentUser().userID,
       this.week
     );
+  }
+
+  async updateGames(): Promise<void> {
+    await this.gamedb.updateWeek(this.week);
   }
 }

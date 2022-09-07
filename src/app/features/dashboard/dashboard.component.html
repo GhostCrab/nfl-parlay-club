@@ -3,13 +3,9 @@
   <h1>Parlay Club 2022</h1>
 </div> -->
 <div class="dashboard-content">
-  <div class="game-flex-item" style="margin-right: 10px">
-    <h2 style="margin-bottom: 9px">CURRENT GAMES</h2>
-    <app-games-list [games$]="allGames$" class="flex-item"></app-games-list>
-  </div>
-  <div class="pick-flex-item" style="margin-right: 10px">
+  <div class="pick-flex-item">
     <div style="display: flex; margin-bottom: 5px">
-      <h2>MY PICKS</h2>
+      <h2 style="margin-bottom: 9px">MY PICKS</h2>
       <span class="flexExpand"></span>
       <button
         type="button"
@@ -27,6 +23,23 @@
       <h2>{{ pickDict.user.name }}'S PICKS</h2>
       <app-picks-list [picks$]="pickDict.picks"></app-picks-list>
     </div>
+  </div>
+  <div class="game-flex-item">
+    <div style="display: flex; margin-bottom: 5px">
+      <h2 style="margin-bottom: 9px">CURRENT GAMES</h2>
+      <span class="flexExpand"></span>
+      <button
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="updateGames()"
+        style="-size: 20px"
+        *ngIf="userID === 4"
+      >
+        Update Games
+      </button>
+    </div>
+    <app-games-list [games$]="allGames$" class="flex-item"></app-games-list>
   </div>
   <div class="score-flex-item">
     <div style="display: flex; margin-bottom: 5px">

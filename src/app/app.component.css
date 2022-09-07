@@ -33,3 +33,11 @@
   width: 80%;
   margin: 0 auto;
 }
+
+@media (max-width: 768px) {
+  .app-content {
+    padding-top: 64px;
+    width: 95%;
+    margin: 0 auto;
+  }
+}

@@ -1,37 +1,84 @@
-<div class="list-container">
-  <mat-grid-list cols="21" rowHeight="3em" *ngFor="let game of games$ | async">
-    <mat-grid-tile colspan="5">
-      <div class="team-name">
-        <img class="team-img" src="{{ game.away.iconURL }}" />
-        {{ game.away.name }}
-        <div
-          *ngIf="game.away.teamID === game.fav.teamID; else elseBlock"
-          style="padding-left: 4px"
-        >
-          -{{ -game.spread }}
+<div *ngIf="!isMobile; else mobile" class="list-container">
+  <div class="list-container">
+    <mat-grid-list
+      cols="21"
+      rowHeight="3em"
+      *ngFor="let game of games$ | async"
+    >
+      <mat-grid-tile colspan="5">
+        <div class="team-name">
+          <img class="team-img" src="{{ game.away.iconURL }}" />
+          {{ game.away.name }}
+          <div
+            *ngIf="game.away.teamID === game.fav.teamID; else elseBlock"
+            style="padding-left: 4px"
+          >
+            -{{ -game.spread }}
+          </div>
+          <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
         </div>
-        <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
-      </div>
-    </mat-grid-tile>
-    <mat-grid-tile colspan="1">@ </mat-grid-tile>
-    <mat-grid-tile colspan="5"
-      ><div class="team-name">
-        <img class="team-img" src="{{ game.home.iconURL }}" />
-        {{ game.home.name }}
-        <div
-          *ngIf="game.home.teamID === game.fav.teamID; else elseBlock"
-          style="padding-left: 4px"
-        >
-          {{ game.spread }}
-        </div>
-        <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
-      </div></mat-grid-tile
-    >
-    <mat-grid-tile colspan="2"
-      ><div class="team-name">+{{ game.ou }}</div></mat-grid-tile
-    >
-    <mat-grid-tile colspan="8"
-      ><div class="game-status">{{game.status()}}</div></mat-grid-tile
-    >
-  </mat-grid-list>
+      </mat-grid-tile>
+      <mat-grid-tile colspan="1">@ </mat-grid-tile>
+      <mat-grid-tile colspan="5"
+        ><div class="team-name">
+          <img class="team-img" src="{{ game.home.iconURL }}" />
+          {{ game.home.name }}
+          <div
+            *ngIf="game.home.teamID === game.fav.teamID; else elseBlock"
+            style="padding-left: 4px"
+          >
+            {{ game.spread }}
+          </div>
+          <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
+        </div></mat-grid-tile
+      >
+      <mat-grid-tile colspan="2"
+        ><div class="team-name">+{{ game.ou }}</div></mat-grid-tile
+      >
+      <mat-grid-tile colspan="8"
+        ><div class="game-status">{{ game.status() }}</div></mat-grid-tile
+      >
+    </mat-grid-list>
+  </div>
 </div>
+<ng-template #mobile>
+  <div class="list-container">
+    <mat-grid-list
+      cols="19"
+      rowHeight="3em"
+      *ngFor="let game of games$ | async"
+    >
+      <mat-grid-tile colspan="5">
+        <div class="team-name">
+          <img class="team-img" src="{{ game.away.iconURL }}" />
+          <div
+            *ngIf="game.away.teamID === game.fav.teamID; else elseBlock"
+            style="padding-left: 4px"
+          >
+            -{{ -game.spread }}
+          </div>
+          <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
+        </div>
+      </mat-grid-tile>
+      <mat-grid-tile colspan="1">@ </mat-grid-tile>
+      <mat-grid-tile colspan="5"
+        ><div class="team-name">
+          <img class="team-img" src="{{ game.home.iconURL }}" />
+          <div
+            *ngIf="game.home.teamID === game.fav.teamID; else elseBlock"
+            style="padding-left: 4px"
+          >
+            {{ game.spread }}
+          </div>
+          <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
+        </div></mat-grid-tile
+      >
+      <mat-grid-tile colspan="3"
+        ><div class="team-name">+{{ game.ou }}</div></mat-grid-tile
+      >
+      <mat-grid-tile colspan="5"
+        ><div class="game-status">{{ game.weekday() }} <br> {{ game.time() }}</div></mat-grid-tile
+      >
+    </mat-grid-list>
+  </div>
+</ng-template>

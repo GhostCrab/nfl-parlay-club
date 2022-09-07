@@ -37,6 +37,11 @@ export interface IParlayGame {
   safeTime(): Date;
   toString(): string;
   status(): string;
+  shortStatus(): string;
+  weekday(): string;
+  time(): string;
+  getWinner(): IParlayTeam;
+  getOUWinner(): IParlayTeam;
 }
 
 function generateGameUID(game: IParlayGame) {
@@ -64,6 +69,11 @@ export class ParlayGame implements IParlayGame {
   public awayScore: number;
   private dirty: boolean;
 
+  private winner: IParlayTeam | undefined;
+  private ouWinner: IParlayTeam | undefined;
+
+  private teamdb: TeamDatabaseService;
+
   public constructor(
     home: string,
     away: string,
@@ -79,6 +89,8 @@ export class ParlayGame implements IParlayGame {
     if (args.length === 2) {
       const [dbdata, teamdb] = args as [IParlayGameRow, TeamDatabaseService];
 
+      this.teamdb = teamdb;
+
       this.gameID = dbdata.gameID;
       this.home = teamdb.fromID(dbdata.homeTeamID);
       this.away = teamdb.fromID(dbdata.awayTeamID);
@@ -91,6 +103,8 @@ export class ParlayGame implements IParlayGame {
       this.complete = dbdata.complete;
       this.homeScore = dbdata.homeScore;
       this.awayScore = dbdata.awayScore;
+
+      this.updateWinner();
     }
 
     // team/date consructor
@@ -101,6 +115,9 @@ export class ParlayGame implements IParlayGame {
         number,
         TeamDatabaseService
       ];
+
+      this.teamdb = teamdb;
+
       this.home = teamdb.fromName(home);
       this.away = teamdb.fromName(away);
 
@@ -177,6 +194,7 @@ export class ParlayGame implements IParlayGame {
     }
 
     if (updated) {
+      this.updateWinner();
       this.dirty = true;
     }
 
@@ -186,14 +204,16 @@ export class ParlayGame implements IParlayGame {
   updateOdds(game: IParlayGame, force = false): boolean {
     // sanity check to not update odds after wednesday at midnight the current week
     const ms10Hours = 10 * 60 * 60 * 1000;
-    const ms4Days = 4 * 24 * 60 * 60 * 1000;
+    const ms3Days = 3 * 24 * 60 * 60 * 1000;
     const sundayDate = getDateFromWeek(this.week);
-    const cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms4Days);
+    let cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms3Days);
     const now = new Date();
-    if ( now > cutoffDate && !force)
-      throw new Error(`Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`)
+    if (now > cutoffDate && !force)
+      throw new Error(
+        `Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`
+      );
 
-    // sunday date is 10AM, minus 10 hours, minus 
+    // sunday date is 10AM, minus 10 hours, minus
 
     let updated = false;
     if (this.fav.teamID !== game.fav.teamID) {
@@ -225,6 +245,7 @@ export class ParlayGame implements IParlayGame {
     }
 
     if (updated) {
+      this.updateWinner();
       this.dirty = true;
     }
 
@@ -236,7 +257,12 @@ export class ParlayGame implements IParlayGame {
 
   updateAll(game: IParlayGame): boolean {
     const u1 = this.updateScoreAndDate(game);
-    const u2 = this.updateOdds(game);
+    let u2 = false;
+    try {
+      u2 = this.updateOdds(game);
+    } catch (e) {
+      console.log(`Warning: ${e}`)
+    }
 
     return u1 || u2;
   }
@@ -248,6 +274,8 @@ export class ParlayGame implements IParlayGame {
     if (this.complete) {
       this.homeScore = result.team2Score;
       this.awayScore = result.team1Score;
+
+      this.updateWinner();
     }
   }
 
@@ -268,6 +296,9 @@ export class ParlayGame implements IParlayGame {
 
         // round ou to nearest half point
         this.ou = Math.round(odds.overUnder * 2) / 2; //(Math.round((odds.overUnder * 10) / 5) * 5) / 5
+
+        this.updateWinner();
+        break;
       }
     }
   }
@@ -333,15 +364,92 @@ export class ParlayGame implements IParlayGame {
 
   status(): string {
     if (!this.complete) {
-      return this.gt.toLocaleString("en-US", {
-        weekday: "short"
-      }) + " " + this.gt.toLocaleString("en-US", {
-        dateStyle: "short",
-        timeStyle: "short"
-      });
+      return (
+        this.gt.toLocaleString('en-US', {
+          weekday: 'short',
+        }) +
+        ' ' +
+        this.gt.toLocaleString('en-US', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        })
+      );
     }
 
-    return "";
+    return '';
+  }
+
+  shortStatus(): string {
+    if (!this.complete) {
+      return (
+        this.gt.toLocaleString('en-US', {
+          weekday: 'short',
+        }) +
+        ' ' +
+        this.gt.toLocaleString('en-US', {
+          timeStyle: 'short',
+        })
+      );
+    }
+
+    return '';
+  }
+
+  weekday(): string {
+    return this.gt.toLocaleString('en-US', {
+      weekday: 'short',
+    });
+  }
+
+  time(): string {
+    return this.gt.toLocaleString('en-US', {
+      timeStyle: 'short',
+    })
+  }
+
+  updateWinner(): void {
+    if (this.complete) {
+      if (this.fav.teamID === this.home.teamID) {
+        if (this.homeScore + this.spread === this.awayScore) {
+          this.winner = this.teamdb.fromName('PUSH');
+        } else if (this.homeScore + this.spread > this.awayScore) {
+          this.winner = this.home;
+        } else {
+          this.winner = this.away;
+        }
+      } else {
+        if (this.awayScore + this.spread === this.homeScore) {
+          this.winner = this.teamdb.fromName('PUSH');
+        } else if (this.awayScore + this.spread > this.homeScore) {
+          this.winner = this.away;
+        } else {
+          this.winner = this.home;
+        }
+      }
+
+      if (this.homeScore + this.awayScore === this.ou) {
+        this.ouWinner = this.teamdb.fromName('PUSH');
+      } else if (this.homeScore + this.awayScore > this.ou) {
+        this.ouWinner = this.teamdb.fromName('OVER');
+      } else {
+        this.ouWinner = this.teamdb.fromName('UNDER');
+      }
+    } else {
+      this.winner = undefined;
+      this.ouWinner = undefined;
+    }
+  }
+
+  getWinner(): IParlayTeam {
+    if (!this.winner)
+      throw Error('Attempted to get winner from incomplete game');
+    return this.winner;
+  }
+
+  getOUWinner(): IParlayTeam {
+    if (!this.ouWinner)
+      throw Error('Attempted to get OU winner from incomplete game');
+    return this.ouWinner;
   }
 }
 

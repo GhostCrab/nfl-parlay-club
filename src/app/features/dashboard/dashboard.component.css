@@ -37,20 +37,34 @@ a {
 
 .game-flex-item {
   flex-grow: 5;
-  /* margin-left: 10px;
-  margin-right: 10px; */
+  margin-right: 10px;
 }
 
-.pick-flex-item{
+.pick-flex-item {
   flex-grow: 3;
+  margin-right: 10px;
 }
 
 .score-flex-item {
   flex-grow: 1;
-  /* margin-left: 10px;
-  margin-right: 10px; */
 }
 
 .flexExpand {
   flex: 1 1 auto;
+}
+
+@media (max-width: 768px) {
+  /* CSS that should be displayed if width is equal to or less than 800px goes here */
+  .dashboard-content {
+    display: block;
+  }
+
+  .game-flex-item {
+    margin-right: 0;
+  }
+  
+  .pick-flex-item {
+    margin-right: 0;
+  }
+  
 }

@@ -7,6 +7,13 @@ import { IParlayGame } from '../../games/interfaces/parlay-game.interface';
 import { IParlayTeam } from '../../teams/interfaces/parlay-team.interface';
 import { IParlayUser } from '../../users/interfaces/parlay-user.interface';
 
+export enum PickStatus {
+  Incomplete,
+  Success,
+  Fail,
+  Push
+}
+
 export interface IParlayPick {
   user: IParlayUser;
   game: IParlayGame;
@@ -15,7 +22,7 @@ export interface IParlayPick {
   toString(): string;
   toParlayPickRow(): IParlayPickRow;
   isSafeToSee(): boolean;
-  success(): boolean;
+  success(): PickStatus;
 }
 
 export class ParlayPick implements IParlayPick {
@@ -73,13 +80,23 @@ export class ParlayPick implements IParlayPick {
     //const now = new Date('2022-09-12T07:00:00Z');
     //const now = new Date('2022-09-09T07:00:00Z');
     const now = new Date();
-    console.log('now:' + now.toLocaleString());
-    console.log('safe:' + this.game.safeTime().toLocaleString());
 
     return now >= this.game.safeTime();
   }
 
-  success(): boolean {
-    return true;
+  success(): PickStatus {
+    try {
+      if(this.team.isOU()) {
+        if (this.game.getOUWinner().isPush()) return PickStatus.Push;
+        if (this.game.getOUWinner().teamID === this.team.teamID) return PickStatus.Success
+        return PickStatus.Fail;
+      } else {
+        if (this.game.getWinner().isPush()) return PickStatus.Push;
+        if (this.game.getWinner().teamID === this.team.teamID) return PickStatus.Success
+        return PickStatus.Fail;
+      }
+    } catch (e) {
+      return PickStatus.Incomplete;
+    }
   }
 }

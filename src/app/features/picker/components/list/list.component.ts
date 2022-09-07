@@ -6,9 +6,11 @@ import { GameDatabaseService } from 'src/app/core/services/game-database.service
 import { TeamDatabaseService } from 'src/app/core/services/team-database.service';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 import { IParlayPick, ParlayPick } from 'src/app/features/picks/interfaces/parlay-pick.interface';
-import { ParlayTeam } from 'src/app/features/teams/interfaces/parlay-team.interface';
+import { IParlayTeam, ParlayTeam } from 'src/app/features/teams/interfaces/parlay-team.interface';
+import { Location } from '@angular/common';
 
 import { IParlayGame } from '../../../games/interfaces/parlay-game.interface';
+import { ApplicationStateService } from 'src/app/core/services/application-state.service';
 
 @Component({
   selector: 'app-list',
@@ -20,15 +22,26 @@ export class ListComponent implements OnInit {
   @Input() picks$: Observable<IParlayPick[]>;
   @Output() pickEmitter = new EventEmitter<Array<ParlayPick>>();
 
+  isMobile: boolean;
   games: Record<string, IParlayGame>;
   checked: Record<string, Record<number, boolean>>;
   disabled: Record<string, boolean>;
+
+  underTeam: IParlayTeam;
+  overTeam: IParlayTeam;
+
   constructor(
     private readonly teamdb: TeamDatabaseService,
     private readonly gamedb: GameDatabaseService,
     private readonly userdb: UserDatabaseService,
-    private readonly auth: Auth
-  ) {}
+    private readonly appState: ApplicationStateService,
+    private readonly auth: Auth,
+    private location: Location
+  ) {
+    this.isMobile = appState.getIsMobileResolution();
+    this.underTeam = teamdb.fromName("UNDER");
+    this.overTeam = teamdb.fromName("OVER");
+  }
 
   ngOnInit(): void {
     this.checked = {};
@@ -127,5 +140,9 @@ export class ListComponent implements OnInit {
     }
 
     this.pickEmitter.emit(allPicks);
+  }
+
+  cancel() {
+    this.location.back();
   }
 }

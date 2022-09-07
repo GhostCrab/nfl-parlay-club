@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ApplicationStateService } from 'src/app/core/services/application-state.service';
 import { IParlayGame } from '../../games/interfaces/parlay-game.interface';
 
 @Component({
@@ -10,7 +11,11 @@ import { IParlayGame } from '../../games/interfaces/parlay-game.interface';
 export class GamesListComponent implements OnInit {
   @Input() games$: Observable<IParlayGame[]>;
 
-  constructor() { }
+  isMobile: boolean;
+
+  constructor(private readonly appState: ApplicationStateService) {
+    this.isMobile = appState.getIsMobileResolution();
+  }
 
   ngOnInit(): void {
   }

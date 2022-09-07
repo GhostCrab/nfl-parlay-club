@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { ApplicationStateService } from 'src/app/core/services/application-state.service';
 import { IParlayPick } from '../../picks/interfaces/parlay-pick.interface';
 
 @Component({
@@ -14,8 +15,11 @@ export class PicksListComponent implements OnInit {
   thursdayPickCount$: Observable<number>;
   otherPicksSafe$: Observable<IParlayPick[]>;
   otherPickCount$: Observable<number>;
+  isMobile: boolean;
 
-  constructor() { }
+  constructor(private readonly appState: ApplicationStateService) {
+    this.isMobile = appState.getIsMobileResolution();
+  }
 
   ngOnInit(): void {
     this.thursdayPicksSafe$ = this.picks$.pipe(map(data => data.filter(a => a.game.isThursdayGame() && a.isSafeToSee())));

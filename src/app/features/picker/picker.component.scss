@@ -7,9 +7,14 @@
         align-items: center;
         display: flex;
         justify-content: space-between;
-        padding: 0 30px;
         color:white;
         font-size: 2em;
         height: 2em;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        display: inherit;
     }
 }
