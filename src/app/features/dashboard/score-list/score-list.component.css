@@ -13,3 +13,7 @@ h3 {
 .score-content {
   display:flex;
 }
+
+.score {
+  margin-bottom: 80px;
+}
