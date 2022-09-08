@@ -29,11 +29,13 @@ export interface IParlayGame {
   updateOddsFromAPI(result: NFLResults): void;
   updateScoreAndDate(game: IParlayGame): boolean;
   updateOdds(game: IParlayGame): boolean;
+  safeToUpdateOdds(force?: boolean): boolean;
   updateAll(game: IParlayGame): boolean;
   toParlayGameRow(): IParlayGameRow;
   writeToDb(gamedb: GameDatabaseService): Promise<void>;
   addToDb(gamedb: GameDatabaseService): Promise<void>;
   isThursdayGame(): boolean;
+  isDirty(): boolean;
   safeTime(): Date;
   toString(): string;
   status(): string;
@@ -44,14 +46,42 @@ export interface IParlayGame {
   getOUWinner(): IParlayTeam;
 }
 
-function generateGameUID(game: IParlayGame) {
-  function pad(num: number) {
-    let numstr = num.toString();
-    while (numstr.length < 2) numstr = '0' + numstr;
-    return numstr;
-  }
+function pad(num: number) {
+  let numstr = num.toString();
+  while (numstr.length < 2) numstr = '0' + numstr;
+  return numstr;
+}
 
-  return `${pad(game.week)}${pad(game.home.teamID)}`;
+export function generateGameUID(game: IParlayGame): string;
+export function generateGameUID(
+  date: number | Date,
+  team: string | number | IParlayTeam,
+  teamdb?: TeamDatabaseService
+): string;
+export function generateGameUID(...args: any[]) {
+  if (args.length === 1) {
+    const game: IParlayGame = args[0];
+
+    return `${pad(game.week)}${pad(game.home.teamID)}`;
+  } else {
+    const [date, team, teamdb] = args as [
+      number | Date,
+      string | number | IParlayTeam,
+      TeamDatabaseService | undefined
+    ];
+
+    const week = getWeekFromAmbig(date);
+    let teamID = -1;
+    if (typeof team === 'string' || typeof team === 'number') {
+      if (!teamdb)
+        throw Error('attempted to look up a team from name without the teamdb');
+      teamID = teamdb.fromAmbig(team).teamID;
+    } else {
+      teamID = team.teamID;
+    }
+
+    return `${pad(week)}${pad(teamID)}`;
+  }
 }
 
 export class ParlayGame implements IParlayGame {
@@ -201,19 +231,30 @@ export class ParlayGame implements IParlayGame {
     return updated;
   }
 
-  updateOdds(game: IParlayGame, force = false): boolean {
+  safeToUpdateOdds(force?: boolean): boolean {
     // sanity check to not update odds after wednesday at midnight the current week
+    force ??= false;
     const ms10Hours = 10 * 60 * 60 * 1000;
     const ms3Days = 3 * 24 * 60 * 60 * 1000;
     const sundayDate = getDateFromWeek(this.week);
     let cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms3Days);
     const now = new Date();
-    if (now > cutoffDate && !force)
+    if (now > cutoffDate && !force) return false;
+
+    return true;
+  }
+
+  updateOdds(game: IParlayGame, force = false): boolean {
+    if (!this.safeToUpdateOdds(force) && !force) {
+      const ms10Hours = 10 * 60 * 60 * 1000;
+      const ms3Days = 3 * 24 * 60 * 60 * 1000;
+      const sundayDate = getDateFromWeek(this.week);
+      let cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms3Days);
+      const now = new Date();
       throw new Error(
         `Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`
       );
-
-    // sunday date is 10AM, minus 10 hours, minus
+    }
 
     let updated = false;
     if (this.fav.teamID !== game.fav.teamID) {
@@ -261,7 +302,7 @@ export class ParlayGame implements IParlayGame {
     try {
       u2 = this.updateOdds(game);
     } catch (e) {
-      console.log(`Warning: ${e}`)
+      console.log(`Warning: ${e}`);
     }
 
     return u1 || u2;
@@ -404,7 +445,7 @@ export class ParlayGame implements IParlayGame {
   time(): string {
     return this.gt.toLocaleString('en-US', {
       timeStyle: 'short',
-    })
+    });
   }
 
   updateWinner(): void {
@@ -450,6 +491,10 @@ export class ParlayGame implements IParlayGame {
     if (!this.ouWinner)
       throw Error('Attempted to get OU winner from incomplete game');
     return this.ouWinner;
+  }
+
+  isDirty(): boolean {
+    return this.dirty;
   }
 }
 

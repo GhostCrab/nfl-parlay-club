@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { GameDatabaseService } from 'src/app/core/services/game-database.service';
+import { NFLApiService } from 'src/app/core/services/nfl-api.service';
 import { IPickDict, PickDatabaseService } from 'src/app/core/services/pick-database.service';
 import { UserDatabaseService } from 'src/app/core/services/user-database.service';
 import {
@@ -15,6 +16,7 @@ import { IParlayPick } from '../picks/interfaces/parlay-pick.interface';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
+  allGamesSub$: BehaviorSubject<IParlayGame[]>;
   allGames$: Observable<IParlayGame[]>;
   allPicks$: Observable<IParlayPick[]>;
   myPicks$: Observable<IParlayPick[]>;
@@ -26,14 +28,14 @@ export class DashboardComponent implements OnInit {
   constructor(
     private readonly gamedb: GameDatabaseService,
     private readonly pickdb: PickDatabaseService,
-    private readonly userdb: UserDatabaseService
+    private readonly userdb: UserDatabaseService,
+    private readonly nflapi: NFLApiService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.userID = this.userdb.currentUser().userID;
     this.week = Math.max(getWeekFromAmbig(new Date()), 1);
 
-    this.allGames$ = this.gamedb.fromWeek(this.week);
     this.allPicks$ = this.pickdb.getAll();
 
     this.myPicks$ = this.pickdb.fromUserWeek(
@@ -45,9 +47,25 @@ export class DashboardComponent implements OnInit {
       this.userdb.currentUser().userID,
       this.week
     );
+
+    this.allGamesSub$ = new BehaviorSubject(new Array<IParlayGame>());
+    this.allGames$ = this.allGamesSub$.asObservable();
+
+    const games = await this.updateGames();
+    this.allGamesSub$.next(games);
+
+    setInterval(async () => {
+      const games = await this.updateGames();
+      this.allGamesSub$.next(games);
+    }, 20000)
   }
 
-  async updateGames(): Promise<void> {
-    await this.gamedb.updateWeek(this.week);
+  async updateGames(): Promise<IParlayGame[]> {
+    return this.nflapi.updateGames(this.week, true);
+  }
+
+  async updateClick(): Promise<void> {
+    const games = await this.updateGames();
+    this.allGamesSub$.next(games);
   }
 }

@@ -5,8 +5,9 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { NFLData } from '../interfaces/nfl-api.interface';
-import { ParlayGame } from '../../features/games/interfaces/parlay-game.interface';
+import { IParlayGame, ParlayGame } from '../../features/games/interfaces/parlay-game.interface';
 import { TeamDatabaseService } from './team-database.service';
+import { GameDatabaseService } from './game-database.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,8 @@ export class NFLApiService {
 
   constructor(
     private http: HttpClient,
-    private readonly teamdb: TeamDatabaseService
+    private readonly teamdb: TeamDatabaseService,
+    private readonly gamedb: GameDatabaseService
   ) {}
 
   getData(week: string): Observable<NFLData> {
@@ -36,12 +38,10 @@ export class NFLApiService {
 
     url.searchParams.set('round', week);
 
-    console.log(`Querying ${url.href}`);
-
     return this.http.get<NFLData>(url.href);
   }
 
-  getGames(week: number, includeOdds = false) {
+  getUpdatedGames(week: number, includeOdds = false): Observable<[IParlayGame[], IParlayGame[]]> {
     const url = new URL(this.apiUrl);
     for (const [key, value] of Object.entries(this.apiSearchParams)) {
       url.searchParams.set(key, value);
@@ -49,25 +49,45 @@ export class NFLApiService {
 
     url.searchParams.set('round', `Week ${week}`);
 
-    console.log(`Querying ${url.href}`);
-
     return this.http.get<NFLData>(url.href).pipe(
       map((data) => {
-        const games: ParlayGame[] = [];
+        const newGames: IParlayGame[] = [];
+        const updatedGames: IParlayGame[] = [];
         for (const result of data.results) {
-          const newGame = new ParlayGame(
-            result.team2Name,
-            result.team1Name,
-            result.date,
-            this.teamdb
-          );
-          newGame.updateFromAPI(result);
-          includeOdds && newGame.updateOddsFromAPI(result);
-          games.push(newGame);
+          try {
+            const dbGame = this.gamedb.fromTeamDate(
+              result.team2Name,
+              result.date
+            );
+            dbGame.updateFromAPI(result);
+            includeOdds && dbGame.safeToUpdateOdds() && dbGame.updateOddsFromAPI(result);
+            updatedGames.push(dbGame);
+          } catch (e) {
+            const newGame = new ParlayGame(
+              result.team2Name,
+              result.team1Name,
+              result.date,
+              this.teamdb
+            );
+            newGame.updateFromAPI(result);
+            newGame.updateOddsFromAPI(result);
+            console.log(`Adding new game: ${newGame.toString()}`);
+            newGames.push(newGame);
+          }
         }
-        return games;
+        return [newGames, updatedGames];
       })
     );
+  }
+
+  async updateGames(week: number, includeOdds = false): Promise<IParlayGame[]> {
+    return new Promise ((resolve, reject) => {
+      this.getUpdatedGames(week, includeOdds).subscribe(async (data) => {
+        const [newGames, updatedGames] = data;
+        await this.gamedb.batchWrite(newGames, updatedGames);
+        resolve([...newGames, ...updatedGames])
+      })
+   });
   }
 
   // getGames(week: string): Observable<ParlayGame[]> {

@@ -34,21 +34,21 @@ export class GamesComponent implements OnInit {
     this.allGames$ = this.gamedb.fromWeek(this.week);
   }
 
-  async updateOdds() {
-    for (const week in [...Array(18).keys()]) {
-      const weekNum = Number(week) + 1;
-      console.log(`Updating Week ${weekNum}`);
-      await this.gamedb.updateWeek(weekNum);
-    }
-  }
+  // async updateOdds() {
+  //   for (const week in [...Array(18).keys()]) {
+  //     const weekNum = Number(week) + 1;
+  //     console.log(`Updating Week ${weekNum}`);
+  //     await this.gamedb.updateWeek(weekNum);
+  //   }
+  // }
 
-  async updateAll() {
-    for (const week in [...Array(18).keys()]) {
-      const weekNum = Number(week) + 1;
-      console.log(`Updating Week ${weekNum}`);
-      await this.gamedb.updateWeek(weekNum);
-    }
-  }
+  // async updateAll() {
+  //   for (const week in [...Array(18).keys()]) {
+  //     const weekNum = Number(week) + 1;
+  //     console.log(`Updating Week ${weekNum}`);
+  //     await this.gamedb.updateWeek(weekNum);
+  //   }
+  // }
 
   async deleteAll() {
     const dbgames = await firstValueFrom(this.gamedb.getAll());

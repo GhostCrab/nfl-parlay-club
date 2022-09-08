@@ -22,14 +22,18 @@ import {
   Firestore,
   collectionData,
   setDoc,
+  writeBatch,
+  WriteBatch,
 } from '@angular/fire/firestore';
 import {
+  generateGameUID,
   IParlayGame,
   ParlayGame,
 } from '../../features/games/interfaces/parlay-game.interface';
 import { IParlayGameRow } from '../interfaces/parlay-game-row.interface';
 import { TeamDatabaseService } from './team-database.service';
 import { NFLApiService } from './nfl-api.service';
+import { IParlayTeam } from 'src/app/features/teams/interfaces/parlay-team.interface';
 
 function gameRowUID(game: IParlayGameRow) {
   function pad(num: number) {
@@ -53,8 +57,7 @@ export class GameDatabaseService {
 
   constructor(
     private readonly firestore: Firestore,
-    private readonly teamdb: TeamDatabaseService,
-    private readonly nflapi: NFLApiService
+    private readonly teamdb: TeamDatabaseService
   ) {
     console.log(`constructor: Querying DB`);
     try {
@@ -107,6 +110,10 @@ export class GameDatabaseService {
     );
   }
 
+  fromWeekQuick(week: number): IParlayGame[] {
+    return Array.from(this.allGames.values()).filter(a => a.week === week).map(a => new ParlayGame(a, this.teamdb))
+  }
+
   fromWeek(week: number) {
     return this.getAll().pipe(
       map((data) => {
@@ -120,26 +127,7 @@ export class GameDatabaseService {
     while (!this.initialized) await new Promise((r) => setTimeout(r, 1000));
   }
 
-  async updateWeek(week: number): Promise<void> {
-    await this.waitForInit();
-
-    const apigames = await firstValueFrom(this.nflapi.getGames(week, true));
-
-    for (const apigame of apigames) {
-      // find game in dbgames
-      const dbgame = this.allGames.get(apigame.gameID);
-
-      if (dbgame) {
-        const dbParlayGame = new ParlayGame(dbgame, this.teamdb);
-        dbParlayGame.updateAll(apigame);
-        await dbParlayGame.writeToDb(this);
-      } else {
-        await apigame.addToDb(this);
-      }
-    }
-  }
-
-  updateGame(game: IParlayGame): Promise<void> {
+  updateGame(game: IParlayGame, batch?: WriteBatch) {
     console.log(`updateGame: Querying DB`);
     if (!game.gameID) {
       throw new Error(
@@ -147,19 +135,23 @@ export class GameDatabaseService {
       );
     }
 
-    const pickDocumentReference = doc(this.firestore, `games/${game.gameID}`);
-    return updateDoc(pickDocumentReference, { ...game.toParlayGameRow() });
+    const gameDocumentReference = doc(this.firestore, `games/${game.gameID}`);
+
+    if (batch) return batch.update(gameDocumentReference, { ...game.toParlayGameRow() });
+    return updateDoc(gameDocumentReference, { ...game.toParlayGameRow() });
   }
 
-  addGame(game: IParlayGame) {
-    console.log(`addGame: Querying DB`);
+  addGame(game: IParlayGame, batch?: WriteBatch) {
+    console.log(`Adding game to db: ${game.toString()}`);
+    const gameRow = game.toParlayGameRow();
+    const gameDocumentReference = doc(this.gameCollection, gameRow.gameID);
 
-    const gameDocumentReference = doc(this.gameCollection, game.gameID);
-    return setDoc(gameDocumentReference, game.toParlayGameRow());
-    //return addDoc(this.gameCollection, game.toParlayGameRow());
+    if (batch) return batch.set(gameDocumentReference, gameRow);
+
+    return setDoc(gameDocumentReference, gameRow);
   }
 
-  fromID(gameID: string) {
+  fromID(gameID: string): IParlayGame {
     this.initCheck();
 
     const game = this.allGames.get(gameID);
@@ -167,6 +159,13 @@ export class GameDatabaseService {
     if (!game) throw new Error(`Unable to find game with ID ${gameID}`);
 
     return new ParlayGame(game, this.teamdb);
+  }
+
+  fromTeamDate(team: string | number | IParlayTeam, date: number | Date): IParlayGame {
+    this.initCheck();
+
+    const id = generateGameUID(date, team, this.teamdb);
+    return this.fromID(id);
   }
 
   initCheck() {
@@ -180,5 +179,22 @@ export class GameDatabaseService {
     console.log(`delete: Querying DB`);
     const gameDocumentReference = doc(this.firestore, `games/${id}`);
     return deleteDoc(gameDocumentReference);
+  }
+
+  batchWrite(addedGames: IParlayGame[], updatedGames: IParlayGame[]) {
+    const dirtyUpdated = updatedGames.filter(a => a.isDirty())
+    if (addedGames.length === 0 && dirtyUpdated.length == 0) return;
+
+    const batch = writeBatch(this.firestore);
+
+    for (const pick of addedGames) {
+      this.addGame(pick, batch);
+    }
+
+    for (const pick of dirtyUpdated) {
+      this.updateGame(pick, batch);
+    }
+
+    return batch.commit();
   }
 }
