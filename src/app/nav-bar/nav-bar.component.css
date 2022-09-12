@@ -33,3 +33,16 @@ a:hover {
 .btn:hover {
   background-color: #52b7c0;
 }
+
+h1 {
+  font-size: 3em; 
+  text-shadow: 3px 3px black; 
+  margin-right: 10px;
+}
+
+/* .rainbow-text {
+  height: 40px; 
+  background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+} */
