@@ -10,5 +10,13 @@ firebase deploy
 [ ] Identify bonus opening thursday and thanksgiving weeks
 [ ] Send out emails when odds are locked and end of week results
 [ ] Add bonus stats page
+[ ] Only update games when a game is active or at least throttle game updates during inactive times
+[ ] Create scheduled tasks to update odds and games when no users are connected
 
 
+---------
+team 1 score, team 2 score set
+timeLeft: "1st Quarter - 9:56"
+timeLeft: "2nd Quarter - 11:05"
+
+timeLeft: "OT - 7:37"
