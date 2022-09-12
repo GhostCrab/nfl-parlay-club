@@ -10,7 +10,17 @@
     </div>
 
     <mat-grid-list
-      class="pick-list"
+      [ngClass]="
+        pick.game.complete
+          ? pick.team.isOU()
+            ? pick.game.getOUWinner().teamID === pick.team.teamID
+              ? 'green-pick-class'
+              : 'red-pick-class'
+            : pick.game.getWinner().teamID === pick.team.teamID
+            ? 'green-pick-class'
+            : 'red-pick-class'
+          : 'pick-class'
+      "
       cols="10"
       rowHeight="3em"
       *ngFor="let pick of thursdayPicksSafe$ | async"
@@ -69,6 +79,17 @@
       class="pick-list"
       cols="10"
       rowHeight="3em"
+      [ngClass]="
+        pick.game.complete
+          ? pick.team.isOU()
+            ? pick.game.getOUWinner().teamID === pick.team.teamID
+              ? 'green-pick-class'
+              : 'red-pick-class'
+            : pick.game.getWinner().teamID === pick.team.teamID
+            ? 'green-pick-class'
+            : 'red-pick-class'
+          : 'pick-class'
+      "
       *ngFor="let pick of otherPicksSafe$ | async"
     >
       <mat-grid-tile colspan="3">
@@ -135,6 +156,17 @@
       class="pick-list"
       cols="10"
       rowHeight="3em"
+      [ngClass]="
+        pick.game.complete
+          ? pick.team.isOU()
+            ? pick.game.getOUWinner().teamID === pick.team.teamID
+              ? 'green-pick-class'
+              : 'red-pick-class'
+            : pick.game.getWinner().teamID === pick.team.teamID
+            ? 'green-pick-class'
+            : 'red-pick-class'
+          : 'pick-class'
+      "
       *ngFor="let pick of thursdayPicksSafe$ | async"
     >
       <mat-grid-tile colspan="3">
@@ -191,6 +223,17 @@
       class="pick-list"
       cols="10"
       rowHeight="3em"
+      [ngClass]="
+        pick.game.complete
+          ? pick.team.isOU()
+            ? pick.game.getOUWinner().teamID === pick.team.teamID
+              ? 'green-pick-class'
+              : 'red-pick-class'
+            : pick.game.getWinner().teamID === pick.team.teamID
+            ? 'green-pick-class'
+            : 'red-pick-class'
+          : 'pick-class'
+      "
       *ngFor="let pick of otherPicksSafe$ | async"
     >
       <mat-grid-tile colspan="3">

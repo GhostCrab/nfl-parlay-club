@@ -8,6 +8,14 @@ mat-grid-list {
   background-color: #1e1e1e;
 }
 
+.red-pick-class {
+  color: red;
+}
+
+.green-pick-class {
+  color: green;
+}
+
 .list-container {
   border-width: 0px 0px 1px 0px;
   border-style: solid;

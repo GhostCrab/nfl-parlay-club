@@ -20,3 +20,5 @@ timeLeft: "1st Quarter - 9:56"
 timeLeft: "2nd Quarter - 11:05"
 
 timeLeft: "OT - 7:37"
+timeLeft: "Final - OT"
+timeLeft: "Final"

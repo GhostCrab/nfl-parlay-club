@@ -39,9 +39,8 @@ export interface IParlayGame {
   safeTime(): Date;
   toString(): string;
   status(): string;
-  shortStatus(): string;
-  weekday(): string;
-  time(): string;
+  shortStatusTop(): string;
+  shortStatusBottom(): string;
   getWinner(): IParlayTeam;
   getOUWinner(): IParlayTeam;
 }
@@ -101,6 +100,9 @@ export class ParlayGame implements IParlayGame {
 
   private winner: IParlayTeam | undefined;
   private ouWinner: IParlayTeam | undefined;
+  private active: boolean;
+  private timeLeft: string;
+  private quarter: number;
 
   private teamdb: TeamDatabaseService;
 
@@ -170,6 +172,7 @@ export class ParlayGame implements IParlayGame {
       this.complete = false;
       this.homeScore = 0;
       this.awayScore = 0;
+      this.active = false;
     }
   }
 
@@ -311,12 +314,30 @@ export class ParlayGame implements IParlayGame {
   updateFromAPI(result: NFLResults): void {
     this.gt = new Date(result.date);
     this.week = getWeekFromDate(this.gt);
-    this.complete = result.timeLeft?.includes('Final') || false;
-    if (this.complete) {
-      this.homeScore = result.team2Score;
-      this.awayScore = result.team1Score;
+    if (result.team2Score) this.homeScore = result.team2Score;
+    if (result.team1Score) this.awayScore = result.team1Score;
 
-      this.updateWinner();
+    if (result.timeLeft) {
+      const tlsplit = result.timeLeft.split(' ');
+      if (tlsplit[0] === 'Final') {
+        if (this.active === true || !this.winner) {
+          this.updateWinner();
+        }
+        this.active = false;
+        if (tlsplit[tlsplit.length - 1] === 'OT') this.quarter = 5;
+        else this.quarter = 0;
+        this.timeLeft = '0:00';
+        this.complete = true;
+      } else {
+        this.active = true;
+        if (tlsplit[0] === 'OT') this.quarter = 5;
+        else this.quarter = Number(tlsplit[0].charAt(0));
+
+        this.timeLeft = tlsplit[tlsplit.length - 1];
+        this.complete = false;
+
+        this.updateWinner();
+      }
     }
   }
 
@@ -404,45 +425,94 @@ export class ParlayGame implements IParlayGame {
   }
 
   status(): string {
-    if (!this.complete) {
+    if ((this.active || this.complete) && this.winner && this.ouWinner) {
+      let timeStr = '';
+      if (this.complete) timeStr = this.quarter === 5 ? 'F/OT: ' : 'F: ';
+      else {
+        timeStr =
+          (this.quarter === 5 ? 'OT' : 'Q' + this.quarter.toString()) +
+          ' ' +
+          this.timeLeft +
+          ': ';
+      }
+
+      let winnerSpreadNum = 0;
+      if (this.winner.teamID === this.away.teamID)
+        winnerSpreadNum = this.awayScore - this.homeScore;
+      else winnerSpreadNum = this.homeScore - this.awayScore;
+
+      const winnerSpreadStr =
+        this.winner.abbr +
+        (winnerSpreadNum < 0 ? ' +' : ' -') +
+        Math.abs(winnerSpreadNum).toString();
+      const ouSpreadStr =
+        this.ouWinner.abbr +
+        ' +' +
+        (this.homeScore + this.awayScore).toString();
+
       return (
-        this.gt.toLocaleString('en-US', {
-          weekday: 'short',
-        }) +
+        timeStr +
+        this.awayScore.toString() +
+        '-' +
+        this.homeScore.toString() +
         ' ' +
-        this.gt.toLocaleString('en-US', {
-          dateStyle: 'short',
-          timeStyle: 'short',
-        })
+        winnerSpreadStr +
+        ' ' +
+        ouSpreadStr
       );
     }
 
-    return '';
+    return (
+      this.gt.toLocaleString('en-US', {
+        weekday: 'short',
+      }) +
+      ' ' +
+      this.gt.toLocaleString('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+    );
   }
 
-  shortStatus(): string {
-    if (!this.complete) {
+  shortStatusTop(): string {
+    if ((this.active || this.complete) && this.winner && this.ouWinner) {
+      let timeStr = '';
+      if (this.complete) timeStr = this.quarter === 5 ? 'F/OT: ' : 'F: ';
+      else {
+        timeStr =
+          (this.quarter === 5 ? 'OT' : 'Q' + this.quarter.toString()) +
+          ' ' +
+          this.timeLeft +
+          ': ';
+      }
+
       return (
-        this.gt.toLocaleString('en-US', {
-          weekday: 'short',
-        }) +
-        ' ' +
-        this.gt.toLocaleString('en-US', {
-          timeStyle: 'short',
-        })
+        timeStr + this.awayScore.toString() + '-' + this.homeScore.toString()
       );
     }
-
-    return '';
-  }
-
-  weekday(): string {
     return this.gt.toLocaleString('en-US', {
       weekday: 'short',
     });
   }
 
-  time(): string {
+  shortStatusBottom(): string {
+    if ((this.active || this.complete) && this.winner && this.ouWinner) {
+      let winnerSpreadNum = 0;
+      if (this.winner.teamID === this.away.teamID)
+        winnerSpreadNum = this.awayScore - this.homeScore;
+      else winnerSpreadNum = this.homeScore - this.awayScore;
+
+      const winnerSpreadStr =
+        this.winner.abbr +
+        (winnerSpreadNum < 0 ? ' +' : ' -') +
+        Math.abs(winnerSpreadNum).toString();
+      const ouSpreadStr =
+        this.ouWinner.abbr +
+        ' +' +
+        (this.homeScore + this.awayScore).toString();
+
+      return winnerSpreadStr + ' ' + ouSpreadStr;
+    }
     return this.gt.toLocaleString('en-US', {
       timeStyle: 'short',
     });
