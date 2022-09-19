@@ -527,35 +527,30 @@ export class ParlayGame implements IParlayGame {
   }
 
   updateWinner(): void {
-    if (this.complete) {
-      if (this.fav.teamID === this.home.teamID) {
-        if (this.homeScore + this.spread === this.awayScore) {
-          this.winner = this.teamdb.fromName('PUSH');
-        } else if (this.homeScore + this.spread > this.awayScore) {
-          this.winner = this.home;
-        } else {
-          this.winner = this.away;
-        }
+    if (this.fav.teamID === this.home.teamID) {
+      if (this.homeScore + this.spread === this.awayScore) {
+        this.winner = this.teamdb.fromName('PUSH');
+      } else if (this.homeScore + this.spread > this.awayScore) {
+        this.winner = this.home;
       } else {
-        if (this.awayScore + this.spread === this.homeScore) {
-          this.winner = this.teamdb.fromName('PUSH');
-        } else if (this.awayScore + this.spread > this.homeScore) {
-          this.winner = this.away;
-        } else {
-          this.winner = this.home;
-        }
-      }
-
-      if (this.homeScore + this.awayScore === this.ou) {
-        this.ouWinner = this.teamdb.fromName('PUSH');
-      } else if (this.homeScore + this.awayScore > this.ou) {
-        this.ouWinner = this.teamdb.fromName('OVER');
-      } else {
-        this.ouWinner = this.teamdb.fromName('UNDER');
+        this.winner = this.away;
       }
     } else {
-      this.winner = undefined;
-      this.ouWinner = undefined;
+      if (this.awayScore + this.spread === this.homeScore) {
+        this.winner = this.teamdb.fromName('PUSH');
+      } else if (this.awayScore + this.spread > this.homeScore) {
+        this.winner = this.away;
+      } else {
+        this.winner = this.home;
+      }
+    }
+
+    if (this.homeScore + this.awayScore === this.ou) {
+      this.ouWinner = this.teamdb.fromName('PUSH');
+    } else if (this.homeScore + this.awayScore > this.ou) {
+      this.ouWinner = this.teamdb.fromName('OVER');
+    } else {
+      this.ouWinner = this.teamdb.fromName('UNDER');
     }
   }
 
