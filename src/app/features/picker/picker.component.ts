@@ -28,10 +28,11 @@ export class PickerComponent implements OnInit {
     private readonly pickdb: PickDatabaseService,
     private readonly userdb: UserDatabaseService,
     private location: Location
-  ) {}
+  ) {
+    this.week = Number(localStorage['week']);
+  }
 
   async ngOnInit() {
-    this.week = Math.max(getWeekFromAmbig(new Date()), 1);
     console.log(`TESTING WEEK ${this.week}`);
 
     this.allGames$ = this.gamedb.fromWeek(this.week);

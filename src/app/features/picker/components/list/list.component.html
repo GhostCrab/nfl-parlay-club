@@ -17,7 +17,7 @@
           <div class="team-name">
             <img class="team-img" src="{{ game.away.iconURL }}" />
             {{ game.away.name }}
-            <div *ngIf="game.away.teamID === game.fav.teamID; else elseBlock">
+            <div *ngIf="game.away.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
               {{ game.spread }}
             </div>
             <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
@@ -37,7 +37,7 @@
           <div class="team-name">
             <img class="team-img" src="{{ game.home.iconURL }}" />
             {{ game.home.name }}
-            <div *ngIf="game.home.teamID === game.fav.teamID; else elseBlock">
+            <div *ngIf="game.home.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
               {{ game.spread }}
             </div>
             <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
@@ -90,7 +90,7 @@
         >
           <div class="team-name">
             <img class="team-img" src="{{ game.away.iconURL }}" />
-            <div *ngIf="game.away.teamID === game.fav.teamID; else elseBlock">
+            <div *ngIf="game.away.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
               {{ game.spread }}
             </div>
             <ng-template #elseBlock>+{{ -game.spread }}</ng-template>
@@ -109,7 +109,7 @@
         >
           <div class="team-name">
             <img class="team-img" src="{{ game.home.iconURL }}" />
-            <div *ngIf="game.home.teamID === game.fav.teamID; else elseBlock">
+            <div *ngIf="game.home.teamID === game.fav.teamID; else elseBlock" style="padding-left: 4px">
               {{ game.spread }}
             </div>
             <ng-template #elseBlock>+{{ -game.spread }}</ng-template>

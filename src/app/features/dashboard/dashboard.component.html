@@ -2,6 +2,26 @@
 <!-- <div class="dashboard-header">
   <h1>Parlay Club 2022</h1>
 </div> -->
+<!-- <p-button [ngClass]="'navIcon leftbtn'" icon="pi pi-angle-double-left" (onClick)="handleFirstClick($event)"></p-button>
+  <p-button [ngClass]="'navIcon midbtn'" icon="pi pi-angle-left" (onClick)="handlePrevClick($event)"></p-button>
+  <p-dropdown [options]="weeks" [(ngModel)]="week" optionLabel="display" (ngModelChange)="onChange($event)"></p-dropdown>
+  <p-button [ngClass]="'navIcon midbtn'" icon="pi pi-angle-right" (onClick)="handleNextClick($event)"></p-button>
+  <p-button [ngClass]="'navIcon rightbtn'" icon="pi pi-angle-double-right" (onClick)="handleLastClick($event)"></p-button> -->
+
+<div class="week-selector">
+  <mat-form-field appearance="fill">
+    <mat-label>View Week</mat-label>
+    <select matNativeControl (change)="selectWeek($event)">
+      <option
+        *ngFor="let selWeek of weeks"
+        [value]="selWeek"
+        [selected]="selWeek === week"
+      >
+        {{ selWeek }}
+      </option>
+    </select>
+  </mat-form-field>
+</div>
 <div class="dashboard-content">
   <div class="pick-flex-item">
     <div style="display: flex; margin-bottom: 5px">
@@ -27,7 +47,7 @@
   <div class="game-flex-item">
     <div style="display: flex; margin-bottom: 5px">
       <h2 style="margin-bottom: 9px">CURRENT GAMES</h2>
-      <span class="flexExpand"></span>
+      <!-- <span class="flexExpand"></span>
       <button
         type="button"
         mat-raised-button
@@ -37,7 +57,7 @@
         *ngIf="userID === 4"
       >
         Update Games
-      </button>
+      </button> -->
     </div>
     <app-games-list [games$]="allGames$" class="flex-item"></app-games-list>
   </div>

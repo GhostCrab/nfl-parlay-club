@@ -81,6 +81,8 @@ export class NFLApiService {
   }
 
   async updateGames(week: number, includeOdds = false): Promise<IParlayGame[]> {
+    await this.gamedb.waitForInit();
+    
     return new Promise ((resolve, reject) => {
       this.getUpdatedGames(week, includeOdds).subscribe(async (data) => {
         const [newGames, updatedGames] = data;

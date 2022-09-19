@@ -41,7 +41,7 @@ a {
 }
 
 .pick-flex-item {
-  flex-grow: 3;
+  flex-grow: 4;
   margin-right: 10px;
 }
 
@@ -62,9 +62,15 @@ a {
   .game-flex-item {
     margin-right: 0;
   }
-  
+
   .pick-flex-item {
     margin-right: 0;
   }
-  
+}
+
+.week-selector {
+  margin-top: 5px;
+  background-color: white;
+  width: min-content;
+  height: 51px;
 }

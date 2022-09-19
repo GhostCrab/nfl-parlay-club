@@ -122,9 +122,9 @@ export class GameDatabaseService {
     );
   }
 
-  async waitForInit(timeout = 1000) {
+  async waitForInit() {
     // wait until the internal dataset has been initialized before updating
-    while (!this.initialized) await new Promise((r) => setTimeout(r, 1000));
+    while (!this.initialized) await new Promise((r) => setTimeout(r, 100));
   }
 
   updateGame(game: IParlayGame, batch?: WriteBatch) {

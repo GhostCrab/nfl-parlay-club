@@ -139,7 +139,7 @@ export class ParlayGame implements IParlayGame {
       this.updateWinner();
     }
 
-    // team/date consructor
+    // team/date constructor
     if (args.length === 4) {
       const [home, away, date, teamdb] = args as [
         string,
@@ -174,6 +174,9 @@ export class ParlayGame implements IParlayGame {
       this.awayScore = 0;
       this.active = false;
     }
+
+    if (isNaN(this.spread)) this.spread = 0;
+    if (isNaN(this.ou)) this.ou = 0;
   }
 
   updateScoreAndDate(game: IParlayGame): boolean {
@@ -270,7 +273,7 @@ export class ParlayGame implements IParlayGame {
       updated = true;
     }
 
-    if (this.spread !== game.spread) {
+    if (!isNaN(game.spread) && this.spread !== game.spread) {
       console.log(
         `${this.toString()} this.spread !== game.spread: ${this.spread} !== ${
           game.spread
@@ -280,7 +283,7 @@ export class ParlayGame implements IParlayGame {
       updated = true;
     }
 
-    if (this.ou !== game.ou) {
+    if (!isNaN(game.ou) && this.ou !== game.ou) {
       console.log(
         `${this.toString()} this.ou !== game.ou: ${this.ou} !== ${game.ou}`
       );
@@ -347,17 +350,22 @@ export class ParlayGame implements IParlayGame {
         // round spread to nearest half point
         const spread = Math.round(odds.spread * 2) / 2; //(Math.round((odds.spread * 10) / 5) * 5) / 5
 
-        // positive spread favors away team
-        if (spread > 0) {
-          this.fav = this.away;
-          this.spread = -spread;
-        } else {
-          this.fav = this.home;
-          this.spread = spread;
+        if (!isNaN(spread)) {
+          // positive spread favors away team
+          if (spread > 0) {
+            this.fav = this.away;
+            this.spread = -spread;
+          } else {
+            this.fav = this.home;
+            this.spread = spread;
+          }
         }
 
         // round ou to nearest half point
-        this.ou = Math.round(odds.overUnder * 2) / 2; //(Math.round((odds.overUnder * 10) / 5) * 5) / 5
+        const ou = Math.round(odds.overUnder * 2) / 2; //(Math.round((odds.overUnder * 10) / 5) * 5) / 5
+        if (!isNaN(ou)) {
+          this.ou = ou;
+        }
 
         this.updateWinner();
         break;

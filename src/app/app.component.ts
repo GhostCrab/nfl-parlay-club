@@ -1,4 +1,5 @@
 import { Component, HostBinding } from '@angular/core';
+import { getWeekFromAmbig } from './features/games/interfaces/parlay-game.interface';
 
 @Component({
   selector: 'app-root',
@@ -15,5 +16,7 @@ export class AppComponent {
     this.isDrawerOpen = isDrawerOpen;
   }
   
-  constructor() {}
+  constructor() {
+    localStorage['week'] = Math.max(getWeekFromAmbig(new Date()), 1);
+  }
 }
