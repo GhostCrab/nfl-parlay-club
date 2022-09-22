@@ -252,14 +252,16 @@ export class ParlayGame implements IParlayGame {
 
   updateOdds(game: IParlayGame, force = false): boolean {
     if (!this.safeToUpdateOdds(force) && !force) {
-      const ms10Hours = 10 * 60 * 60 * 1000;
-      const ms3Days = 3 * 24 * 60 * 60 * 1000;
-      const sundayDate = getDateFromWeek(this.week);
-      let cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms3Days);
-      const now = new Date();
-      throw new Error(
-        `Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`
-      );
+      return false;
+      // const ms10Hours = 10 * 60 * 60 * 1000;
+      // const ms3Days = 3 * 24 * 60 * 60 * 1000;
+      // const sundayDate = getDateFromWeek(this.week);
+      // let cutoffDate = new Date(sundayDate.getTime() - ms10Hours - ms3Days);
+      // const nower = new Date();
+      // const now = new Date(nower.getTime() + (1000 * 60 * 60 * 3))
+      // throw new Error(
+      //   `Attempted to update odds after cutoff date ${now.toLocaleString()} > ${cutoffDate.toLocaleString()}`
+      // );
     }
 
     let updated = false;

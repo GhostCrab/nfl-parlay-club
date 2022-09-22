@@ -59,8 +59,15 @@ export class NFLApiService {
               result.team2Name,
               result.date
             );
-            dbGame.updateFromAPI(result);
-            includeOdds && dbGame.safeToUpdateOdds() && dbGame.updateOddsFromAPI(result);
+            const refGame = new ParlayGame(
+              result.team2Name,
+              result.team1Name,
+              result.date,
+              this.teamdb
+            );
+            refGame.updateFromAPI(result);
+            refGame.updateOddsFromAPI(result);
+            dbGame.updateAll(refGame);
             updatedGames.push(dbGame);
           } catch (e) {
             const newGame = new ParlayGame(

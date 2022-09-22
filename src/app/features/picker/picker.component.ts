@@ -36,6 +36,11 @@ export class PickerComponent implements OnInit {
     console.log(`TESTING WEEK ${this.week}`);
 
     this.allGames$ = this.gamedb.fromWeek(this.week);
+    this.allGames$.subscribe(x => {
+      for (const game of x) {
+        console.log(`${game.toString()}`)
+      }
+    });
     this.allPicks$ = this.pickdb.fromUserWeek(
       this.userdb.currentUser().userID,
       this.week

@@ -87,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.myPicks$ = from([]);
     this.otherPicks = [];
     
+    this.week = Number(localStorage['week']);
     const games = await this.updateGames();
     this.allGamesSub$.next(games);
     this.setPicks();
