@@ -135,10 +135,30 @@ export class PickDatabaseService {
   }
 
   fromUserWeek(userID: number, week: number): Observable<IParlayPick[]> {
-    return this.getAll().pipe(
-      map((data) =>
-        data.filter((a) => a.user.userID === userID && a.game.week === week)
-      )
+    return this.allPicks$.pipe(
+      map((rows: IParlayPickRow[]) => {
+        console.log(`checking picks W${week}`)
+        const result: IParlayPick[] = [];
+        for (const row of rows) {
+          if (row.userID !== userID) continue;
+          const newPick = new ParlayPick(
+            row.userID,
+            row.gameID,
+            row.teamID,
+            this.userdb,
+            this.gamedb,
+            this.teamdb
+          );
+          if (newPick.game.week !== week) continue;
+          console.log(`${newPick.toString()}`)
+          result.push(newPick);
+        }
+        return result;
+      }),
+      map((data) => {
+        data.sort(ParlayPick.sort);
+        return data;
+      })
     );
   }
 
@@ -154,12 +174,14 @@ export class PickDatabaseService {
       dict.push({
         user: user,
         picks: this.getAll().pipe(
-          map((data) => data.filter(
-            (a) =>
-              a.user.userID === user.userID &&
-              a.game.week === week &&
-              (a.isSafeToSee() || !safeOnly)
-          ))
+          map((data) =>
+            data.filter(
+              (a) =>
+                a.user.userID === user.userID &&
+                a.game.week === week &&
+                (a.isSafeToSee() || !safeOnly)
+            )
+          )
         ),
       });
     }

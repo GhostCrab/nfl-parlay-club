@@ -1,4 +1,4 @@
-<div *ngIf="!isMobile; else mobile" class="list-container">
+<div *ngIf="!isMobile; else mobile">
   <div class="list-container" *ngIf="(picks$ | async)?.length; else noPicks">
     <div
       class="pick-count"

@@ -84,10 +84,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async hardWaitAndRefresh() {
     this.allGamesSub$.next([]);
-    this.myPicks$ = from([]);
     this.otherPicks = [];
+    this.myPicks$ = from([new Array<IParlayPick>()]);
     
-    this.week = Number(localStorage['week']);
     const games = await this.updateGames();
     this.allGamesSub$.next(games);
     this.setPicks();

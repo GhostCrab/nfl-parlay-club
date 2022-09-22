@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApplicationStateService } from 'src/app/core/services/application-state.service';
 import { IParlayPick } from '../../picks/interfaces/parlay-pick.interface';
@@ -8,7 +8,7 @@ import { IParlayPick } from '../../picks/interfaces/parlay-pick.interface';
   templateUrl: './picks-list.component.html',
   styleUrls: ['./picks-list.component.css']
 })
-export class PicksListComponent implements OnInit {
+export class PicksListComponent implements OnChanges {
   @Input() picks$: Observable<IParlayPick[]>;
   
   thursdayPicksSafe$: Observable<IParlayPick[]>;
@@ -21,11 +21,10 @@ export class PicksListComponent implements OnInit {
     this.isMobile = appState.getIsMobileResolution();
   }
 
-  ngOnInit(): void {
+  ngOnChanges(): void {
     this.thursdayPicksSafe$ = this.picks$.pipe(map(data => data.filter(a => a.game.isThursdayGame() && a.isSafeToSee())));
     this.thursdayPickCount$ = this.picks$.pipe(map(data => data.filter(a => a.game.isThursdayGame()).length));
     this.otherPicksSafe$ = this.picks$.pipe(map(data => data.filter(a => !a.game.isThursdayGame() && a.isSafeToSee())));
     this.otherPickCount$ = this.picks$.pipe(map(data => data.filter(a => !a.game.isThursdayGame()).length));
   }
-
 }
