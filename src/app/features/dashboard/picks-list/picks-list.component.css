@@ -13,10 +13,12 @@ mat-grid-list {
 }
 
 .red-pick-class {
+  background-color: white;
   color: red;
 }
 
 .green-pick-class {
+  background-color: white;
   color: green;
 }
 
