@@ -137,7 +137,6 @@ export class PickDatabaseService {
   fromUserWeek(userID: number, week: number): Observable<IParlayPick[]> {
     return this.allPicks$.pipe(
       map((rows: IParlayPickRow[]) => {
-        console.log(`checking picks W${week}`)
         const result: IParlayPick[] = [];
         for (const row of rows) {
           if (row.userID !== userID) continue;
@@ -150,7 +149,6 @@ export class PickDatabaseService {
             this.teamdb
           );
           if (newPick.game.week !== week) continue;
-          console.log(`${newPick.toString()}`)
           result.push(newPick);
         }
         return result;

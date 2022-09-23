@@ -24,6 +24,9 @@ export interface IParlayGame {
   complete: boolean;
   homeScore: number;
   awayScore: number;
+  active: boolean;
+  timeLeft: string;
+  quarter: number;
 
   updateFromAPI(result: NFLResults): void;
   updateOddsFromAPI(result: NFLResults): void;
@@ -43,6 +46,7 @@ export interface IParlayGame {
   shortStatusBottom(): string;
   getWinner(): IParlayTeam;
   getOUWinner(): IParlayTeam;
+  toPickString(): string;
 }
 
 function pad(num: number) {
@@ -96,13 +100,15 @@ export class ParlayGame implements IParlayGame {
   public complete: boolean;
   public homeScore: number;
   public awayScore: number;
+  public active: boolean;
+  public timeLeft: string;
+  public quarter: number;
+
   private dirty: boolean;
 
   private winner: IParlayTeam | undefined;
   private ouWinner: IParlayTeam | undefined;
-  private active: boolean;
-  private timeLeft: string;
-  private quarter: number;
+  
 
   private teamdb: TeamDatabaseService;
 
@@ -229,6 +235,8 @@ export class ParlayGame implements IParlayGame {
       updated = true;
     }
 
+    this.timeLeft
+
     if (updated) {
       this.updateWinner();
       this.dirty = true;
@@ -312,6 +320,10 @@ export class ParlayGame implements IParlayGame {
     } catch (e) {
       console.log(`Warning: ${e}`);
     }
+
+    this.active = game.active;
+    this.timeLeft = game.timeLeft;
+    this.quarter = game.quarter;
 
     return u1 || u2;
   }
@@ -407,6 +419,10 @@ export class ParlayGame implements IParlayGame {
 
   toString() {
     return `W${this.week} ${this.away.abbr} @ ${this.home.abbr} [${this.spread} / ${this.ou}]`;
+  }
+
+  toPickString() {
+    return `[] ${this.away.city} @ [] ${this.home.city} | ${this.fav.city} ${this.spread}`;
   }
 
   static sort(a: IParlayGame, b: IParlayGame): number {

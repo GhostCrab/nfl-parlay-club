@@ -8,6 +8,10 @@ mat-grid-list {
   background-color: #1e1e1e;
 }
 
+.pick-class{
+  background-color: white;
+}
+
 .red-pick-class {
   color: red;
 }
@@ -20,7 +24,6 @@ mat-grid-list {
   border-width: 0px 0px 1px 0px;
   border-style: solid;
   border-color: #1e1e1e;
-  background-color: white;
 }
 
 .team-name {

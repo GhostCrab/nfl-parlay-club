@@ -53,6 +53,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.allGames$ = this.allGamesSub$.asObservable();
 
     const games = await this.updateGames();
+    for (const game of games) {
+      console.log(`${game.toPickString()}`)
+    }
     this.allGamesSub$.next(games);
 
     this.updateInterval = setInterval(async () => {
