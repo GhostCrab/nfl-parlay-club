@@ -86,6 +86,8 @@ export class ScoreListComponent implements OnInit {
           }
         }
 
+        if (weekPicks.length > 0)
+          console.log(`${user.name} W${weekPicks[0].game.week}: ${this.scores[user.name]} + ${tally}`)
         this.scores[user.name] += tally;
         //this.scores[user.name] += Math.floor(Math.random() * 10);
       }

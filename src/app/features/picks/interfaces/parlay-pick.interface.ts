@@ -85,6 +85,7 @@ export class ParlayPick implements IParlayPick {
   }
 
   success(): PickStatus {
+    if (!this.game.complete) return PickStatus.Incomplete;
     try {
       if(this.team.isOU()) {
         if (this.game.getOUWinner().isPush()) return PickStatus.Push;
